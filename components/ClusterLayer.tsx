@@ -61,6 +61,16 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
             `
                 : ''
             }
+            ${
+              names.length > 3
+                ? `
+              <div class="flex flex-row gap-1 items-center">
+                ${alertIcon}
+                <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
+              </div>
+            `
+                : ''
+            }
           </div>
           <div>
             <button 
