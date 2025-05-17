@@ -13,6 +13,7 @@ export default function CityMap({ minPopulation, countries }: { minPopulation: n
       if (!res.ok) throw new Error('Failed to fetch cities');
       return res.json();
     },
+    refetchOnWindowFocus: false,
   });
 
   const filteredCities = useMemo(() => {

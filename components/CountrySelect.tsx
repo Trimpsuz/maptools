@@ -28,6 +28,7 @@ export default function CountrySelect({ value, onChange }: Props) {
       if (!res.ok) throw new Error('Failed to load countries');
       return res.json();
     },
+    refetchOnWindowFocus: false,
   });
 
   const selectedCountry = countries.find((c) => c.code === value);
