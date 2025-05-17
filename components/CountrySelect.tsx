@@ -24,7 +24,7 @@ export default function CountrySelect({ value, onChange }: Props) {
   const { data: countries = [], isLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
     queryFn: async () => {
-      const res = await fetch('/api/countries');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
       if (!res.ok) throw new Error('Failed to load countries');
       return res.json();
     },
