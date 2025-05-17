@@ -55,9 +55,31 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
           ${
             names.length > 1
               ? `
-            <div class="flex flex-row gap-1 items-center">
+            <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
               <div class="text-foreground/80 text-sm">Country required: <b>${city.countryCode}</b></div>
+              <button 
+                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                onclick="
+                  const button = this;
+                  const copyIcon = button.innerHTML;
+                  navigator.clipboard.writeText('${city.countryCode.replaceAll("'", "\\'")}').then(() => {
+                    button.innerHTML = atob('${btoa(checkIcon)}');
+                    button.classList.add('text-green-500');
+                    button.classList.remove('cursor-pointer');
+                    button.classList.remove('hover:text-foreground');
+                    
+                    setTimeout(() => {
+                      button.innerHTML = copyIcon;
+                      button.classList.remove('text-green-500');
+                      button.classList.add('cursor-pointer');
+                      button.classList.add('hover:text-foreground');
+                    }, 1000);
+                  }).catch(err => console.error('Could not copy text: ', err));"
+                title="Copy city name"
+              >
+                ${copyIcon}
+              </button>
             </div>
           `
               : ''
@@ -65,9 +87,31 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
           ${
             names.length == 2 && names[1] != city.countryCode
               ? `
-            <div class="flex flex-row gap-1 items-center">
+            <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
               <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
+              <button 
+                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                onclick="
+                  const button = this;
+                  const copyIcon = button.innerHTML;
+                  navigator.clipboard.writeText('${names[1].replaceAll("'", "\\'")}').then(() => {
+                    button.innerHTML = atob('${btoa(checkIcon)}');
+                    button.classList.add('text-green-500');
+                    button.classList.remove('cursor-pointer');
+                    button.classList.remove('hover:text-foreground');
+                    
+                    setTimeout(() => {
+                      button.innerHTML = copyIcon;
+                      button.classList.remove('text-green-500');
+                      button.classList.add('cursor-pointer');
+                      button.classList.add('hover:text-foreground');
+                    }, 1000);
+                  }).catch(err => console.error('Could not copy text: ', err));"
+                title="Copy city name"
+              >
+                ${copyIcon}
+              </button>
             </div>
           `
               : ''
@@ -75,9 +119,31 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
           ${
             names.length > 2
               ? `
-            <div class="flex flex-row gap-1 items-center">
+            <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
               <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
+              <button 
+                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                onclick="
+                  const button = this;
+                  const copyIcon = button.innerHTML;
+                  navigator.clipboard.writeText('${names[1].replaceAll("'", "\\'")}').then(() => {
+                    button.innerHTML = atob('${btoa(checkIcon)}');
+                    button.classList.add('text-green-500');
+                    button.classList.remove('cursor-pointer');
+                    button.classList.remove('hover:text-foreground');
+                    
+                    setTimeout(() => {
+                      button.innerHTML = copyIcon;
+                      button.classList.remove('text-green-500');
+                      button.classList.add('cursor-pointer');
+                      button.classList.add('hover:text-foreground');
+                    }, 1000);
+                  }).catch(err => console.error('Could not copy text: ', err));"
+                title="Copy city name"
+              >
+                ${copyIcon}
+              </button>
             </div>
           `
               : ''
@@ -85,9 +151,31 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
           ${
             names.length > 3
               ? `
-            <div class="flex flex-row gap-1 items-center">
+            <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
               <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
+              <button 
+                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                onclick="
+                  const button = this;
+                  const copyIcon = button.innerHTML;
+                  navigator.clipboard.writeText('${city.alternateNames.split(';')[0].replaceAll("'", "\\'")}').then(() => {
+                    button.innerHTML = atob('${btoa(checkIcon)}');
+                    button.classList.add('text-green-500');
+                    button.classList.remove('cursor-pointer');
+                    button.classList.remove('hover:text-foreground');
+                    
+                    setTimeout(() => {
+                      button.innerHTML = copyIcon;
+                      button.classList.remove('text-green-500');
+                      button.classList.add('cursor-pointer');
+                      button.classList.add('hover:text-foreground');
+                    }, 1000);
+                  }).catch(err => console.error('Could not copy text: ', err));"
+                title="Copy city name"
+              >
+                ${copyIcon}
+              </button>
             </div>
           `
               : ''
