@@ -24,55 +24,8 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
 
       const marker = L.marker([city.latitude, city.longitude]).bindPopup(`
         <div class="bg-background text-foreground p-4 rounded-lg shadow-lg min-w-max flex flex-col gap-2">
-          <div class="flex justify-between items-center pe-4">
+          <div class="flex flex-row gap-2 items-center pe-4">
             <h3 class="font-bold text-lg">${escape(names[0])}</h3>
-          </div>
-          <div class="text-foreground/80 text-sm">
-            Population: ${city.population.toLocaleString()}
-          </div>
-          <div>
-            ${
-              names.length > 1
-                ? `
-              <div class="flex flex-row gap-1 items-center">
-                ${alertIcon}
-                <div class="text-foreground/80 text-sm">Country required: <b>${city.countryCode}</b></div>
-              </div>
-            `
-                : ''
-            }
-            ${
-              names.length == 2 && names[1] != city.countryCode
-                ? `
-              <div class="flex flex-row gap-1 items-center">
-                ${alertIcon}
-                <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
-              </div>
-            `
-                : ''
-            }
-            ${
-              names.length > 2
-                ? `
-              <div class="flex flex-row gap-1 items-center">
-                ${alertIcon}
-                <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
-              </div>
-            `
-                : ''
-            }
-            ${
-              names.length > 3
-                ? `
-              <div class="flex flex-row gap-1 items-center">
-                ${alertIcon}
-                <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
-              </div>
-            `
-                : ''
-            }
-          </div>
-          <div>
             <button 
               class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
               onclick="
@@ -96,6 +49,49 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
               ${copyIcon}
             </button>
           </div>
+          <div class="text-foreground/80 text-sm">
+            Population: ${city.population.toLocaleString()}
+          </div>
+          ${
+            names.length > 1
+              ? `
+            <div class="flex flex-row gap-1 items-center">
+              ${alertIcon}
+              <div class="text-foreground/80 text-sm">Country required: <b>${city.countryCode}</b></div>
+            </div>
+          `
+              : ''
+          }
+          ${
+            names.length == 2 && names[1] != city.countryCode
+              ? `
+            <div class="flex flex-row gap-1 items-center">
+              ${alertIcon}
+              <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
+            </div>
+          `
+              : ''
+          }
+          ${
+            names.length > 2
+              ? `
+            <div class="flex flex-row gap-1 items-center">
+              ${alertIcon}
+              <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
+            </div>
+          `
+              : ''
+          }
+          ${
+            names.length > 3
+              ? `
+            <div class="flex flex-row gap-1 items-center">
+              ${alertIcon}
+              <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
+            </div>
+          `
+              : ''
+          }
         </div>
       `);
 
