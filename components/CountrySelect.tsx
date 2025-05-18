@@ -7,18 +7,9 @@ import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover
 import { Button } from '@/components/ui/button';
 import { Check, ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Country } from '@/types';
 
-type Country = {
-  code: string;
-  name: string;
-};
-
-type Props = {
-  value: string | null;
-  onChange: (value: string | null, countryData?: Country) => void;
-};
-
-export default function CountrySelect({ value, onChange }: Props) {
+export default function CountrySelect({ value, onChange }: { value: string | null; onChange: (value: string | null, countryData?: Country) => void }) {
   const [open, setOpen] = useState(false);
 
   const { data: countries = [], isLoading } = useQuery<Country[]>({

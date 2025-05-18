@@ -1,23 +1,31 @@
 'use client';
 
+import Sidebar from '@/components/Sidebar';
+import { CircleConfig } from '@/types';
+import { Menu } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
-import { ModeToggle } from '@/components/ModeToggle';
-import CountrySelect from '@/components/CountrySelect';
-import { Menu } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
-const CityMap = dynamic(() => import('@/components/CityMap'), { ssr: false });
+const CityMap = dynamic(() => import('@/components/CityMap'), {
+  ssr: false,
+});
 
 export default function HomePage() {
   const [minPopulation, setMinPopulation] = useState(5000);
   const [country, setCountry] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [circles, setCircles] = useState<CircleConfig[]>([]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
   }, []);
+
+  const handleAddCircle = (circleConfig: CircleConfig) => {
+    setCircles((prevCircles) => {
+      const filteredCircles = prevCircles.filter((circle) => circle.city.id !== circleConfig.city.id);
+      return [...filteredCircles, circleConfig];
+    });
+  };
 
   return (
     <div className="flex h-screen">
@@ -32,42 +40,10 @@ export default function HomePage() {
           </button>
         ) : null}
 
-        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} />
+        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} />
       </div>
 
-      <aside
-        className={`
-          fixed top-0 right-0 h-full
-          bg-background text-foreground shadow-lg
-          transition-all duration-300 ease-in-out
-          z-40
-          md:static md:shadow-none
-          ${sidebarOpen ? 'translate-x-0 md:w-80 md:p-4' : 'translate-x-full md:translate-x-0 md:w-14 md:p-2'}
-          overflow-hidden
-          flex flex-col
-        `}
-      >
-        <div className="flex flex-col gap-4 p-4 md:p-0">
-          <div>
-            <Label className="block text-sm font-medium mb-2">Min Population</Label>
-            <Input
-              type="number"
-              className="w-full rounded p-2 border border-input bg-background text-foreground"
-              value={minPopulation}
-              min={0}
-              step={1000}
-              onChange={(e) => setMinPopulation(parseInt(e.target.value, 10) || 0)}
-            />
-          </div>
-
-          <div>
-            <Label className="block text-sm font-medium mb-2">Country</Label>
-            <CountrySelect value={country} onChange={setCountry} />
-          </div>
-
-          <ModeToggle />
-        </div>
-      </aside>
+      <Sidebar sidebarOpen={sidebarOpen} minPopulation={minPopulation} setMinPopulation={setMinPopulation} country={country} setCountry={setCountry} onAddCircle={handleAddCircle} />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
     </div>

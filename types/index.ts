@@ -6,4 +6,16 @@ export type City = {
   longitude: number;
   population: number;
   countryCode: string;
+  admin1Name: string;
+};
+
+export type Country = {
+  code: string;
+  name: string;
+};
+
+export type CircleConfig = {
+  city: City;
+  redRadius: number | null;
+  greenRadius: number;
 };
