@@ -5,14 +5,8 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Switch } from '@/components/ui/switch';
-import type { City, Country } from '@/types';
+import type { CircleConfig, City, Country } from '@/types';
 import { toast } from 'sonner';
-
-type CircleConfig = {
-  city: City;
-  redRadius: number | null;
-  greenRadius: number;
-};
 
 export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle: (config: CircleConfig) => void; minPopulation: number }) {
   const [searchQuery, setSearchQuery] = useState('');
