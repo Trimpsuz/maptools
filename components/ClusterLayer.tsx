@@ -4,7 +4,7 @@ import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
 import { useEffect } from 'react';
-import { Copy, CircleCheck, TriangleAlert } from 'lucide-react';
+import { Copy, CircleCheck, TriangleAlert, ChevronDown } from 'lucide-react';
 import ReactDOMServer from 'react-dom/server';
 import { escape } from 'html-escaper';
 import type { City, Country } from '@/types';
@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query';
 const copyIcon = ReactDOMServer.renderToString(<Copy size={20} />);
 const checkIcon = ReactDOMServer.renderToString(<CircleCheck size={20} />);
 const alertIcon = ReactDOMServer.renderToString(<TriangleAlert size={20} color="#ffb818" />);
+const chevronIcon = ReactDOMServer.renderToString(<ChevronDown size={18} />);
 
 export default function ClusterLayer({ cities }: { cities: City[] }) {
   const map = useMap();
@@ -157,6 +158,42 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
               >
                 ${copyIcon}
               </button>
+            </div>
+          `
+              : ''
+          }
+          ${
+            city.admin2Required && city.alternateNames !== ''
+              ? `
+            <div class="flex flex-row gap-2 items-center cursor-pointer" onclick="
+              const menu = document.getElementById('dropdownMenu');
+              menu.classList.toggle('hidden');
+
+              const chevron = document.getElementById('chevron');
+              chevron.classList.toggle('rotate-180');"
+            >
+              <div class="text-foreground/80 text-sm">View all alternate names</div>
+              <div id="chevron" class="transform transition-transform duration-200">${chevronIcon}</div>
+            </div>
+
+            <div id="dropdownMenu" class="hidden transform transition-transform duration-200">
+              <div class="flex flex-wrap gap-x-1 select-text">
+                ${city.alternateNames
+                  .split(';')
+                  .map((name, i, arr) => {
+                    const cleanName = name.split(',')[0];
+                    const comma = i < arr.length - 1;
+                    return `
+                    <span class="flex items-center">
+                      <span
+                        class="select-all"
+                      >
+                        ${cleanName}
+                      </span>${comma ? '<span>,</span>' : ''}
+                    </span>`;
+                  })
+                  .join('')}
+              </div>
             </div>
           `
               : ''
