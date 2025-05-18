@@ -4,6 +4,7 @@ import CitySearch from '@/components/CitySearch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CircleConfig } from '@/types';
+import { Switch } from '@/components/ui/switch';
 
 export default function Sidebar({
   sidebarOpen,
@@ -12,6 +13,8 @@ export default function Sidebar({
   country,
   setCountry,
   onAddCircle,
+  showPossibleCitiesOnly,
+  setShowPossibleCitiesOnly,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -19,6 +22,8 @@ export default function Sidebar({
   country: string | null;
   setCountry: (country: string | null) => void;
   onAddCircle: (config: CircleConfig) => void;
+  showPossibleCitiesOnly: boolean;
+  setShowPossibleCitiesOnly: (value: boolean) => void;
 }) {
   return (
     <aside
@@ -52,6 +57,13 @@ export default function Sidebar({
         </div>
 
         <CitySearch onAddCircle={onAddCircle} minPopulation={minPopulation} />
+
+        <div className="flex items-center space-x-2">
+          <Switch id="show-possible-cities" checked={showPossibleCitiesOnly} onCheckedChange={setShowPossibleCitiesOnly} className="cursor-pointer" />
+          <Label htmlFor="show-possible-cities" className="text-sm">
+            Only show possible cities
+          </Label>
+        </div>
       </div>
 
       <div className="ml-auto pb-4 pr-4 md:pb-0 md:pr-0">

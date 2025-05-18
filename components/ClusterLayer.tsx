@@ -3,7 +3,7 @@
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet.markercluster';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Copy, CircleCheck, TriangleAlert, ChevronDown } from 'lucide-react';
 import ReactDOMServer from 'react-dom/server';
 import { escape } from 'html-escaper';
@@ -15,10 +15,235 @@ const checkIcon = ReactDOMServer.renderToString(<CircleCheck size={20} />);
 const alertIcon = ReactDOMServer.renderToString(<TriangleAlert size={20} color="#ffb818" />);
 const chevronIcon = ReactDOMServer.renderToString(<ChevronDown size={18} />);
 
+function createMarker(city: City, countries: Country[]) {
+  const country = countries.find((c) => c.code === city.countryCode)?.name ?? '';
+  const names = city.name.split(', ');
+
+  const popup = `
+              <div class="bg-background text-foreground p-4 rounded-lg shadow-lg min-w-max flex flex-col gap-2">
+                <div class="flex flex-row gap-2 items-center pe-4">
+                  <h3 class="font-bold text-lg">${escape(names[0])}</h3>
+                  <button 
+                    class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                    onclick="
+                      const button = this;
+                      const copyIcon = button.innerHTML;
+                      navigator.clipboard.writeText('${names[0].replaceAll("'", "\\'")}').then(() => {
+                        button.innerHTML = atob('${btoa(checkIcon)}');
+                        button.classList.add('text-green-500');
+                        button.classList.remove('cursor-pointer');
+                        button.classList.remove('hover:text-foreground');
+                        
+                        setTimeout(() => {
+                          button.innerHTML = copyIcon;
+                          button.classList.remove('text-green-500');
+                          button.classList.add('cursor-pointer');
+                          button.classList.add('hover:text-foreground');
+                        }, 1000);
+                      }).catch(err => console.error('Could not copy text: ', err));"
+                    title="Copy city name"
+                  >
+                    ${copyIcon}
+                  </button>
+                </div>
+                <div class="text-foreground/80 text-sm">
+                  Population: ${city.population.toLocaleString()}
+                </div>
+                ${
+                  city.countryRequired || city.admin1Required
+                    ? `
+                  <div class="flex flex-row gap-2 items-center">
+                    ${alertIcon}
+                    <div class="text-foreground/80 text-sm">Country required: <b>${country}</b></div>
+                    <button 
+                      class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                      onclick="
+                        const button = this;
+                        const copyIcon = button.innerHTML;
+                        navigator.clipboard.writeText('${country.replaceAll("'", "\\'")}').then(() => {
+                          button.innerHTML = atob('${btoa(checkIcon)}');
+                          button.classList.add('text-green-500');
+                          button.classList.remove('cursor-pointer');
+                          button.classList.remove('hover:text-foreground');
+                          
+                          setTimeout(() => {
+                            button.innerHTML = copyIcon;
+                            button.classList.remove('text-green-500');
+                            button.classList.add('cursor-pointer');
+                            button.classList.add('hover:text-foreground');
+                          }, 1000);
+                        }).catch(err => console.error('Could not copy text: ', err));"
+                      title="Copy city name"
+                    >
+                      ${copyIcon}
+                    </button>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  city.admin1Required
+                    ? `
+                  <div class="flex flex-row gap-2 items-center">
+                    ${alertIcon}
+                    <div class="text-foreground/80 text-sm">Region required: <b>${city.admin1Name}</b></div>
+                    <button 
+                      class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                      onclick="
+                        const button = this;
+                        const copyIcon = button.innerHTML;
+                        navigator.clipboard.writeText('${city.admin1Name?.replaceAll("'", "\\'")}').then(() => {
+                          button.innerHTML = atob('${btoa(checkIcon)}');
+                          button.classList.add('text-green-500');
+                          button.classList.remove('cursor-pointer');
+                          button.classList.remove('hover:text-foreground');
+                          
+                          setTimeout(() => {
+                            button.innerHTML = copyIcon;
+                            button.classList.remove('text-green-500');
+                            button.classList.add('cursor-pointer');
+                            button.classList.add('hover:text-foreground');
+                          }, 1000);
+                        }).catch(err => console.error('Could not copy text: ', err));"
+                      title="Copy city name"
+                    >
+                      ${copyIcon}
+                    </button>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  city.admin2Required && city.alternateNames !== ''
+                    ? `
+                  <div class="flex flex-row gap-2 items-center">
+                    ${alertIcon}
+                    <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
+                    <button 
+                      class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                      onclick="
+                        const button = this;
+                        const copyIcon = button.innerHTML;
+                        navigator.clipboard.writeText('${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")}').then(() => {
+                          button.innerHTML = atob('${btoa(checkIcon)}');
+                          button.classList.add('text-green-500');
+                          button.classList.remove('cursor-pointer');
+                          button.classList.remove('hover:text-foreground');
+                          
+                          setTimeout(() => {
+                            button.innerHTML = copyIcon;
+                            button.classList.remove('text-green-500');
+                            button.classList.add('cursor-pointer');
+                            button.classList.add('hover:text-foreground');
+                          }, 1000);
+                        }).catch(err => console.error('Could not copy text: ', err));"
+                      title="Copy city name"
+                    >
+                      ${copyIcon}
+                    </button>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  city.admin2Required && city.alternateNames !== ''
+                    ? `
+                  <div class="flex flex-row gap-2 items-center cursor-pointer" onclick="
+                    const menu = document.getElementById('dropdownMenu');
+                    menu.classList.toggle('hidden');
+      
+                    const chevron = document.getElementById('chevron');
+                    chevron.classList.toggle('rotate-180');"
+                  >
+                    <div class="text-foreground/80 text-sm">View all alternate names</div>
+                    <div id="chevron" class="transform transition-transform duration-200">${chevronIcon}</div>
+                  </div>
+      
+                  <div id="dropdownMenu" class="hidden transform transition-transform duration-200">
+                    <div class="flex flex-wrap gap-x-1 select-text">
+                      ${city.alternateNames
+                        .split(';')
+                        .map((name, i, arr) => {
+                          const cleanName = name.split(',')[0];
+                          const comma = i < arr.length - 1;
+                          return `
+                          <span class="flex items-center">
+                            <span
+                              class="select-all"
+                            >
+                              ${cleanName}
+                            </span>${comma ? '<span>,</span>' : ''}
+                          </span>`;
+                        })
+                        .join('')}
+                    </div>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  city.admin2Required && city.alternateNames === ''
+                    ? `
+                  <div class="flex flex-row gap-2 items-center">
+                    ${alertIcon}
+                    <div class="text-foreground/80 text-sm">City likely not usable</div>
+                  </div>
+                `
+                    : ''
+                }
+                ${
+                  !city.admin2Required || city.alternateNames !== ''
+                    ? `
+                  <div class="flex flex-row gap-2 items-center">
+                      <h3 class="font-bold text-md">Copy full command</h3>
+                      <button 
+                        class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                        onclick="
+                          const button = this;
+                          const copyIcon = button.innerHTML;
+                          navigator.clipboard.writeText(
+                          '${
+                            city.admin2Required && city.alternateNames !== ''
+                              ? `/guess city:${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")} country:${city.countryCode} ${
+                                  city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''
+                                }`
+                              : `/guess city:${names[0].replaceAll("'", "\\'")} country:${city.countryCode} ${city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''}`
+                          }'
+                          ).then(() => {
+                            button.innerHTML = atob('${btoa(checkIcon)}');
+                            button.classList.add('text-green-500');
+                            button.classList.remove('cursor-pointer');
+                            button.classList.remove('hover:text-foreground');
+                            
+                            setTimeout(() => {
+                              button.innerHTML = copyIcon;
+                              button.classList.remove('text-green-500');
+                              button.classList.add('cursor-pointer');
+                              button.classList.add('hover:text-foreground');
+                            }, 1000);
+                          }).catch(err => console.error('Could not copy text: ', err));"
+                        title="Copy city name"
+                      >
+                        ${copyIcon}
+                      </button>
+                    </div>
+                  `
+                    : ''
+                }
+              </div>
+            `;
+
+  const marker = L.marker([city.latitude, city.longitude]);
+  return marker.bindPopup(popup);
+}
+
 export default function ClusterLayer({ cities }: { cities: City[] }) {
   const map = useMap();
+  const clusterRef = useRef<L.MarkerClusterGroup | null>(null);
 
-  const { data: countries = [], isLoading } = useQuery<Country[]>({
+  const markerMapRef = useRef<Map<string, L.Marker>>(new Map());
+
+  const { data: countries = [] } = useQuery<Country[]>({
     queryKey: ['countries'],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
@@ -29,236 +254,39 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
   });
 
   useEffect(() => {
-    if (isLoading) return;
+    if (!clusterRef.current) {
+      const group = L.markerClusterGroup();
+      clusterRef.current = group;
+      map.addLayer(group);
+    }
+  }, [map]);
 
-    const markers = L.markerClusterGroup();
+  useEffect(() => {
+    const clusterGroup = clusterRef.current;
+    const markerMap = markerMapRef.current;
 
-    cities.forEach((city) => {
-      const names = city.name.split(', ');
+    if (!clusterGroup) return;
 
-      const marker = L.marker([city.latitude, city.longitude]).bindPopup(`
-        <div class="bg-background text-foreground p-4 rounded-lg shadow-lg min-w-max flex flex-col gap-2">
-          <div class="flex flex-row gap-2 items-center pe-4">
-            <h3 class="font-bold text-lg">${escape(names[0])}</h3>
-            <button 
-              class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-              onclick="
-                const button = this;
-                const copyIcon = button.innerHTML;
-                navigator.clipboard.writeText('${names[0].replaceAll("'", "\\'")}').then(() => {
-                  button.innerHTML = atob('${btoa(checkIcon)}');
-                  button.classList.add('text-green-500');
-                  button.classList.remove('cursor-pointer');
-                  button.classList.remove('hover:text-foreground');
-                  
-                  setTimeout(() => {
-                    button.innerHTML = copyIcon;
-                    button.classList.remove('text-green-500');
-                    button.classList.add('cursor-pointer');
-                    button.classList.add('hover:text-foreground');
-                  }, 1000);
-                }).catch(err => console.error('Could not copy text: ', err));"
-              title="Copy city name"
-            >
-              ${copyIcon}
-            </button>
-          </div>
-          <div class="text-foreground/80 text-sm">
-            Population: ${city.population.toLocaleString()}
-          </div>
-          ${
-            city.countryRequired || city.admin1Required
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-              ${alertIcon}
-              <div class="text-foreground/80 text-sm">Country required: <b>${countries.find((c) => c.code === city.countryCode)?.name}</b></div>
-              <button 
-                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-                onclick="
-                  const button = this;
-                  const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${countries.find((c) => c.code === city.countryCode)?.name.replaceAll("'", "\\'")}').then(() => {
-                    button.innerHTML = atob('${btoa(checkIcon)}');
-                    button.classList.add('text-green-500');
-                    button.classList.remove('cursor-pointer');
-                    button.classList.remove('hover:text-foreground');
-                    
-                    setTimeout(() => {
-                      button.innerHTML = copyIcon;
-                      button.classList.remove('text-green-500');
-                      button.classList.add('cursor-pointer');
-                      button.classList.add('hover:text-foreground');
-                    }, 1000);
-                  }).catch(err => console.error('Could not copy text: ', err));"
-                title="Copy city name"
-              >
-                ${copyIcon}
-              </button>
-            </div>
-          `
-              : ''
-          }
-          ${
-            city.admin1Required
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-              ${alertIcon}
-              <div class="text-foreground/80 text-sm">Region required: <b>${city.admin1Name}</b></div>
-              <button 
-                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-                onclick="
-                  const button = this;
-                  const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${city.admin1Name?.replaceAll("'", "\\'")}').then(() => {
-                    button.innerHTML = atob('${btoa(checkIcon)}');
-                    button.classList.add('text-green-500');
-                    button.classList.remove('cursor-pointer');
-                    button.classList.remove('hover:text-foreground');
-                    
-                    setTimeout(() => {
-                      button.innerHTML = copyIcon;
-                      button.classList.remove('text-green-500');
-                      button.classList.add('cursor-pointer');
-                      button.classList.add('hover:text-foreground');
-                    }, 1000);
-                  }).catch(err => console.error('Could not copy text: ', err));"
-                title="Copy city name"
-              >
-                ${copyIcon}
-              </button>
-            </div>
-          `
-              : ''
-          }
-          ${
-            city.admin2Required && city.alternateNames !== ''
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-              ${alertIcon}
-              <div class="text-foreground/80 text-sm">Alternate name likely required: <b>${city.alternateNames.split(';')[0]}</b></div>
-              <button 
-                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-                onclick="
-                  const button = this;
-                  const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")}').then(() => {
-                    button.innerHTML = atob('${btoa(checkIcon)}');
-                    button.classList.add('text-green-500');
-                    button.classList.remove('cursor-pointer');
-                    button.classList.remove('hover:text-foreground');
-                    
-                    setTimeout(() => {
-                      button.innerHTML = copyIcon;
-                      button.classList.remove('text-green-500');
-                      button.classList.add('cursor-pointer');
-                      button.classList.add('hover:text-foreground');
-                    }, 1000);
-                  }).catch(err => console.error('Could not copy text: ', err));"
-                title="Copy city name"
-              >
-                ${copyIcon}
-              </button>
-            </div>
-          `
-              : ''
-          }
-          ${
-            city.admin2Required && city.alternateNames !== ''
-              ? `
-            <div class="flex flex-row gap-2 items-center cursor-pointer" onclick="
-              const menu = document.getElementById('dropdownMenu');
-              menu.classList.toggle('hidden');
+    const newIds = new Set(cities.map((c) => c.id));
 
-              const chevron = document.getElementById('chevron');
-              chevron.classList.toggle('rotate-180');"
-            >
-              <div class="text-foreground/80 text-sm">View all alternate names</div>
-              <div id="chevron" class="transform transition-transform duration-200">${chevronIcon}</div>
-            </div>
+    for (const [id, marker] of markerMap.entries()) {
+      if (!newIds.has(id)) {
+        clusterGroup.removeLayer(marker);
+        markerMap.delete(id);
+      }
+    }
 
-            <div id="dropdownMenu" class="hidden transform transition-transform duration-200">
-              <div class="flex flex-wrap gap-x-1 select-text">
-                ${city.alternateNames
-                  .split(';')
-                  .map((name, i, arr) => {
-                    const cleanName = name.split(',')[0];
-                    const comma = i < arr.length - 1;
-                    return `
-                    <span class="flex items-center">
-                      <span
-                        class="select-all"
-                      >
-                        ${cleanName}
-                      </span>${comma ? '<span>,</span>' : ''}
-                    </span>`;
-                  })
-                  .join('')}
-              </div>
-            </div>
-          `
-              : ''
-          }
-          ${
-            city.admin2Required && city.alternateNames === ''
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-              ${alertIcon}
-              <div class="text-foreground/80 text-sm">City likely not usable</div>
-            </div>
-          `
-              : ''
-          }
-          ${
-            !city.admin2Required || city.alternateNames !== ''
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-                <h3 class="font-bold text-md">Copy full command</h3>
-                <button 
-                  class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-                  onclick="
-                    const button = this;
-                    const copyIcon = button.innerHTML;
-                    navigator.clipboard.writeText(
-                    '${
-                      city.admin2Required && city.alternateNames !== ''
-                        ? `/guess city:${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")} country:${city.countryCode} ${
-                            city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''
-                          }`
-                        : `/guess city:${names[0].replaceAll("'", "\\'")} country:${city.countryCode} ${city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''}`
-                    }'
-                    ).then(() => {
-                      button.innerHTML = atob('${btoa(checkIcon)}');
-                      button.classList.add('text-green-500');
-                      button.classList.remove('cursor-pointer');
-                      button.classList.remove('hover:text-foreground');
-                      
-                      setTimeout(() => {
-                        button.innerHTML = copyIcon;
-                        button.classList.remove('text-green-500');
-                        button.classList.add('cursor-pointer');
-                        button.classList.add('hover:text-foreground');
-                      }, 1000);
-                    }).catch(err => console.error('Could not copy text: ', err));"
-                  title="Copy city name"
-                >
-                  ${copyIcon}
-                </button>
-              </div>
-            `
-              : ''
-          }
-        </div>
-      `);
+    for (const city of cities) {
+      if (markerMap.has(city.id)) continue;
 
-      markers.addLayer(marker);
-    });
+      if (typeof city.latitude !== 'number' || typeof city.longitude !== 'number') continue;
 
-    map.addLayer(markers);
+      const marker = createMarker(city, countries);
 
-    return () => {
-      map.removeLayer(markers);
-    };
-  }, [cities, map, countries, isLoading]);
+      markerMap.set(city.id, marker);
+      clusterGroup.addLayer(marker);
+    }
+  }, [cities, countries]);
 
   return null;
 }

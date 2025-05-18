@@ -15,6 +15,17 @@ export default function HomePage() {
   const [country, setCountry] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [circles, setCircles] = useState<CircleConfig[]>([]);
+  const [showPossibleCitiesOnly, setShowPossibleCitiesOnly] = useState(false);
+
+  useEffect(() => {
+    const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
+
+    if (savedShowPossibleCitiesOnly) setShowPossibleCitiesOnly(JSON.parse(savedShowPossibleCitiesOnly));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('showPossibleCitiesOnly', JSON.stringify(showPossibleCitiesOnly));
+  }, [showPossibleCitiesOnly]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
@@ -40,10 +51,19 @@ export default function HomePage() {
           </button>
         ) : null}
 
-        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} />
+        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} showPossibleCitiesOnly={showPossibleCitiesOnly} />
       </div>
 
-      <Sidebar sidebarOpen={sidebarOpen} minPopulation={minPopulation} setMinPopulation={setMinPopulation} country={country} setCountry={setCountry} onAddCircle={handleAddCircle} />
+      <Sidebar
+        sidebarOpen={sidebarOpen}
+        minPopulation={minPopulation}
+        setMinPopulation={setMinPopulation}
+        country={country}
+        setCountry={setCountry}
+        onAddCircle={handleAddCircle}
+        showPossibleCitiesOnly={showPossibleCitiesOnly}
+        setShowPossibleCitiesOnly={setShowPossibleCitiesOnly}
+      />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
     </div>
