@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +17,16 @@ type CircleConfig = {
 export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle: (config: CircleConfig) => void; minPopulation: number }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
+
+  useEffect(() => {
+    const savedCenterOnCircle = localStorage.getItem('centerOnCircle');
+
+    if (savedCenterOnCircle) setCenterOnCircle(JSON.parse(savedCenterOnCircle));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('centerOnCircle', JSON.stringify(centerOnCircle));
+  }, [centerOnCircle]);
 
   const { data: countries = [], isLoading: countriesLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
