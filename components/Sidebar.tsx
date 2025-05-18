@@ -33,7 +33,7 @@ export default function Sidebar({
           flex flex-col
         `}
     >
-      <div className="flex flex-col gap-4 p-4 md:p-0">
+      <div className="flex flex-col gap-4 p-4 md:p-0 flex-grow">
         <div>
           <Label className="block text-sm font-medium mb-2">Min Population</Label>
           <Input
@@ -52,7 +52,9 @@ export default function Sidebar({
         </div>
 
         <CitySearch onAddCircle={onAddCircle} minPopulation={minPopulation} />
+      </div>
 
+      <div className="ml-auto pb-4 pr-4 md:pb-0 md:pr-0">
         <ModeToggle />
       </div>
     </aside>
