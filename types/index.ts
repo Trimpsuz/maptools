@@ -6,7 +6,10 @@ export type City = {
   longitude: number;
   population: number;
   countryCode: string;
-  admin1Name: string;
+  admin1Name?: string;
+  countryRequired?: boolean;
+  admin1Required?: boolean;
+  admin2Required?: boolean;
 };
 
 export type Country = {

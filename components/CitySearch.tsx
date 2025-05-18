@@ -96,7 +96,7 @@ export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle
     }
 
     if (regionName) {
-      filteredCities = filteredCities.filter((city) => city.admin1Name.toLowerCase().includes(regionName.toLowerCase()));
+      filteredCities = filteredCities.filter((city) => city.admin1Name?.toLowerCase().includes(regionName.toLowerCase()));
     }
 
     if (filteredCities.length === 0) {

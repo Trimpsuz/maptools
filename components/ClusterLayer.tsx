@@ -7,7 +7,8 @@ import { useEffect } from 'react';
 import { Copy, CircleCheck, TriangleAlert } from 'lucide-react';
 import ReactDOMServer from 'react-dom/server';
 import { escape } from 'html-escaper';
-import type { City } from '@/types';
+import type { City, Country } from '@/types';
+import { useQuery } from '@tanstack/react-query';
 
 const copyIcon = ReactDOMServer.renderToString(<Copy size={20} />);
 const checkIcon = ReactDOMServer.renderToString(<CircleCheck size={20} />);
@@ -16,7 +17,19 @@ const alertIcon = ReactDOMServer.renderToString(<TriangleAlert size={20} color="
 export default function ClusterLayer({ cities }: { cities: City[] }) {
   const map = useMap();
 
+  const { data: countries = [], isLoading } = useQuery<Country[]>({
+    queryKey: ['countries'],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
+      if (!res.ok) throw new Error('Failed to load countries');
+      return res.json();
+    },
+    refetchOnWindowFocus: false,
+  });
+
   useEffect(() => {
+    if (isLoading) return;
+
     const markers = L.markerClusterGroup();
 
     cities.forEach((city) => {
@@ -53,17 +66,17 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
             Population: ${city.population.toLocaleString()}
           </div>
           ${
-            names.length > 1
+            city.countryRequired || city.admin1Required
               ? `
             <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
-              <div class="text-foreground/80 text-sm">Country required: <b>${city.countryCode}</b></div>
+              <div class="text-foreground/80 text-sm">Country required: <b>${countries.find((c) => c.code === city.countryCode)?.name}</b></div>
               <button 
                 class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
                 onclick="
                   const button = this;
                   const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${city.countryCode.replaceAll("'", "\\'")}').then(() => {
+                  navigator.clipboard.writeText('${countries.find((c) => c.code === city.countryCode)?.name.replaceAll("'", "\\'")}').then(() => {
                     button.innerHTML = atob('${btoa(checkIcon)}');
                     button.classList.add('text-green-500');
                     button.classList.remove('cursor-pointer');
@@ -85,17 +98,17 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
               : ''
           }
           ${
-            names.length == 2 && names[1] != city.countryCode
+            city.admin1Required
               ? `
             <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
-              <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
+              <div class="text-foreground/80 text-sm">Region required: <b>${city.admin1Name}</b></div>
               <button 
                 class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
                 onclick="
                   const button = this;
                   const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${names[1].replaceAll("'", "\\'")}').then(() => {
+                  navigator.clipboard.writeText('${city.admin1Name?.replaceAll("'", "\\'")}').then(() => {
                     button.innerHTML = atob('${btoa(checkIcon)}');
                     button.classList.add('text-green-500');
                     button.classList.remove('cursor-pointer');
@@ -117,39 +130,7 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
               : ''
           }
           ${
-            names.length > 2
-              ? `
-            <div class="flex flex-row gap-2 items-center">
-              ${alertIcon}
-              <div class="text-foreground/80 text-sm">Region required: <b>${names[1]}</b></div>
-              <button 
-                class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
-                onclick="
-                  const button = this;
-                  const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${names[1].replaceAll("'", "\\'")}').then(() => {
-                    button.innerHTML = atob('${btoa(checkIcon)}');
-                    button.classList.add('text-green-500');
-                    button.classList.remove('cursor-pointer');
-                    button.classList.remove('hover:text-foreground');
-                    
-                    setTimeout(() => {
-                      button.innerHTML = copyIcon;
-                      button.classList.remove('text-green-500');
-                      button.classList.add('cursor-pointer');
-                      button.classList.add('hover:text-foreground');
-                    }, 1000);
-                  }).catch(err => console.error('Could not copy text: ', err));"
-                title="Copy city name"
-              >
-                ${copyIcon}
-              </button>
-            </div>
-          `
-              : ''
-          }
-          ${
-            names.length > 3
+            city.admin2Required && city.alternateNames !== ''
               ? `
             <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
@@ -180,6 +161,16 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
           `
               : ''
           }
+          ${
+            city.admin2Required && city.alternateNames === ''
+              ? `
+            <div class="flex flex-row gap-2 items-center">
+              ${alertIcon}
+              <div class="text-foreground/80 text-sm">City likely not usable</b></div>
+            </div>
+          `
+              : ''
+          }
         </div>
       `);
 
@@ -191,7 +182,7 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
     return () => {
       map.removeLayer(markers);
     };
-  }, [cities, map]);
+  }, [cities, map, countries, isLoading]);
 
   return null;
 }
