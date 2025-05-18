@@ -140,7 +140,7 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
                 onclick="
                   const button = this;
                   const copyIcon = button.innerHTML;
-                  navigator.clipboard.writeText('${city.alternateNames.split(';')[0].replaceAll("'", "\\'")}').then(() => {
+                  navigator.clipboard.writeText('${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")}').then(() => {
                     button.innerHTML = atob('${btoa(checkIcon)}');
                     button.classList.add('text-green-500');
                     button.classList.remove('cursor-pointer');
@@ -166,9 +166,48 @@ export default function ClusterLayer({ cities }: { cities: City[] }) {
               ? `
             <div class="flex flex-row gap-2 items-center">
               ${alertIcon}
-              <div class="text-foreground/80 text-sm">City likely not usable</b></div>
+              <div class="text-foreground/80 text-sm">City likely not usable</div>
             </div>
           `
+              : ''
+          }
+          ${
+            !city.admin2Required || city.alternateNames !== ''
+              ? `
+            <div class="flex flex-row gap-2 items-center">
+                <h3 class="font-bold text-md">Copy full command</h3>
+                <button 
+                  class="text-foreground/80 hover:text-foreground rounded-full hover:bg-foreground/10 transition-colors cursor-pointer"
+                  onclick="
+                    const button = this;
+                    const copyIcon = button.innerHTML;
+                    navigator.clipboard.writeText(
+                    '${
+                      city.admin2Required && city.alternateNames !== ''
+                        ? `/guess city:${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")} country:${city.countryCode} ${
+                            city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''
+                          }`
+                        : `/guess city:${names[0].replaceAll("'", "\\'")} country:${city.countryCode} ${city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''}`
+                    }'
+                    ).then(() => {
+                      button.innerHTML = atob('${btoa(checkIcon)}');
+                      button.classList.add('text-green-500');
+                      button.classList.remove('cursor-pointer');
+                      button.classList.remove('hover:text-foreground');
+                      
+                      setTimeout(() => {
+                        button.innerHTML = copyIcon;
+                        button.classList.remove('text-green-500');
+                        button.classList.add('cursor-pointer');
+                        button.classList.add('hover:text-foreground');
+                      }, 1000);
+                    }).catch(err => console.error('Could not copy text: ', err));"
+                  title="Copy city name"
+                >
+                  ${copyIcon}
+                </button>
+              </div>
+            `
               : ''
           }
         </div>
