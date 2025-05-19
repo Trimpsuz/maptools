@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 import ClusterLayer from './ClusterLayer';
 import CircleLayer from './CircleLayer';
-import type { CircleConfig, City } from '@/types';
+import type { CircleConfig, City, Country } from '@/types';
 import { isPointWithinRadius } from '@/lib/utils';
 
 function MapController({ centerOn }: { centerOn: { lat: number; lng: number } | null }) {
@@ -37,11 +37,13 @@ export default function CityMap({
   countries,
   circles = [],
   showPossibleCitiesOnly = false,
+  excludedCountries = [],
 }: {
   minPopulation: number;
   countries: string;
   circles: CircleConfig[];
   showPossibleCitiesOnly?: boolean;
+  excludedCountries?: Country[];
 }) {
   const { data: cities = [], isLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
@@ -53,19 +55,20 @@ export default function CityMap({
     refetchOnWindowFocus: false,
   });
 
-  const filteredCities = useMemo(() => {
-    if (!countries || countries === 'all') return cities;
-    return cities.filter((city) => city.countryCode === countries);
-  }, [cities, countries]);
-
   const visibleCities = useMemo(() => {
-    if (!showPossibleCitiesOnly || circles.length === 0) {
-      return filteredCities;
+    if (!showPossibleCitiesOnly) {
+      return cities;
     }
+
+    const filteredCities = !countries || countries === 'all' ? cities : cities.filter((city) => city.countryCode === countries);
 
     const usedCityIds = new Set(circles.map((c) => c.city.id));
 
     return filteredCities.filter((city) => {
+      if (excludedCountries.some((country) => country.code === city.countryCode)) return false;
+
+      if (circles.length === 0) return true;
+
       if (usedCityIds.has(city.id)) return false;
 
       for (const circle of circles) {
@@ -87,7 +90,7 @@ export default function CityMap({
 
       return true;
     });
-  }, [filteredCities, circles, showPossibleCitiesOnly]);
+  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities]);
 
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>

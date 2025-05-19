@@ -1,7 +1,7 @@
 'use client';
 
 import Sidebar from '@/components/Sidebar';
-import { CircleConfig } from '@/types';
+import { CircleConfig, Country } from '@/types';
 import { Menu } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
@@ -16,6 +16,7 @@ export default function HomePage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [circles, setCircles] = useState<CircleConfig[]>([]);
   const [showPossibleCitiesOnly, setShowPossibleCitiesOnly] = useState(false);
+  const [excludedCountries, setExcludedCountries] = useState<Country[]>([]);
 
   useEffect(() => {
     const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
@@ -51,7 +52,7 @@ export default function HomePage() {
           </button>
         ) : null}
 
-        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} showPossibleCitiesOnly={showPossibleCitiesOnly} />
+        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} showPossibleCitiesOnly={showPossibleCitiesOnly} excludedCountries={excludedCountries} />
       </div>
 
       <Sidebar
@@ -63,6 +64,8 @@ export default function HomePage() {
         onAddCircle={handleAddCircle}
         showPossibleCitiesOnly={showPossibleCitiesOnly}
         setShowPossibleCitiesOnly={setShowPossibleCitiesOnly}
+        excludedCountries={excludedCountries}
+        setExcludedCountries={setExcludedCountries}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

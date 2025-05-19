@@ -3,8 +3,9 @@ import { ModeToggle } from '@/components/ModeToggle';
 import CitySearch from '@/components/CitySearch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CircleConfig } from '@/types';
+import { CircleConfig, Country } from '@/types';
 import { Switch } from '@/components/ui/switch';
+import RecapParser from './RecapParser';
 
 export default function Sidebar({
   sidebarOpen,
@@ -15,6 +16,8 @@ export default function Sidebar({
   onAddCircle,
   showPossibleCitiesOnly,
   setShowPossibleCitiesOnly,
+  excludedCountries,
+  setExcludedCountries,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -24,6 +27,8 @@ export default function Sidebar({
   onAddCircle: (config: CircleConfig) => void;
   showPossibleCitiesOnly: boolean;
   setShowPossibleCitiesOnly: (value: boolean) => void;
+  excludedCountries: Country[];
+  setExcludedCountries: (excludedCountries: Country[]) => void;
 }) {
   return (
     <aside
@@ -38,7 +43,7 @@ export default function Sidebar({
           flex flex-col
         `}
     >
-      <div className="flex flex-col gap-4 p-4 md:p-0 flex-grow">
+      <div className="flex flex-col gap-2 p-4 md:p-0 flex-grow">
         <div>
           <Label className="block text-sm font-medium mb-2">Min Population</Label>
           <Input
@@ -64,6 +69,15 @@ export default function Sidebar({
             Only show possible cities
           </Label>
         </div>
+
+        <RecapParser
+          minPopulation={minPopulation}
+          excludedCountries={excludedCountries}
+          setExcludedCountries={setExcludedCountries}
+          onAddCircle={onAddCircle}
+          setCountry={setCountry}
+          selectedCountry={country}
+        />
       </div>
 
       <div className="ml-auto pb-4 pr-4 md:pb-0 md:pr-0">
