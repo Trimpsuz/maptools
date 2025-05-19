@@ -10,6 +10,7 @@ import { SetStateAction } from 'react';
 import ExcludedCountriesList from './ExcludedCountriesList';
 import CirclesList from './CirclesList';
 import HemisphereSelect from './HemisphereSelect';
+import ContinentSelect from './ContinentSelect';
 
 export default function Sidebar({
   sidebarOpen,
@@ -27,6 +28,8 @@ export default function Sidebar({
   setEquatorialLine,
   hemisphere,
   setHemisphere,
+  continent,
+  setContinent,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -43,6 +46,8 @@ export default function Sidebar({
   setEquatorialLine: (equatorialLine: boolean) => void;
   hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
   setHemisphere: (hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere') => void;
+  continent: string | null;
+  setContinent: (continent: string | null) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -83,6 +88,11 @@ export default function Sidebar({
         </div>
 
         <div>
+          <Label className="block text-sm font-medium mb-2">Continent</Label>
+          <ContinentSelect value={continent} onChange={setContinent} />
+        </div>
+
+        <div>
           <Label className="block text-sm font-medium mb-2">Hemisphere</Label>
           <HemisphereSelect hemisphere={hemisphere} setHemisphere={setHemisphere} />
         </div>
@@ -110,6 +120,7 @@ export default function Sidebar({
           onAddCircle={handleAddCircle}
           setCountry={setCountry}
           selectedCountry={country}
+          setContinent={setContinent}
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />

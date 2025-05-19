@@ -40,6 +40,7 @@ export default function CityMap({
   excludedCountries = [],
   equatorialLine = true,
   hemisphere = 'Both',
+  continent,
 }: {
   minPopulation: number;
   countries: string;
@@ -48,12 +49,23 @@ export default function CityMap({
   excludedCountries?: Country[];
   equatorialLine: boolean;
   hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
+  continent: string | null;
 }) {
   const { data: cities = [], isLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all`);
       if (!res.ok) throw new Error('Failed to fetch cities');
+      return res.json();
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: countriesData = [] } = useQuery<Country[]>({
+    queryKey: ['countries'],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
+      if (!res.ok) throw new Error('Failed to load countries');
       return res.json();
     },
     refetchOnWindowFocus: false,
@@ -69,6 +81,8 @@ export default function CityMap({
     const usedCityIds = new Set(circles.map((c) => c.city.id));
 
     return filteredCities.filter((city) => {
+      if (continent && countriesData.find((country) => country.code === city.countryCode)?.continent !== continent) return false;
+
       if (city.latitude < 0 && hemisphere === 'Northern Hemisphere') return false;
       if (city.latitude > 0 && hemisphere === 'Southern Hemisphere') return false;
 
@@ -97,7 +111,7 @@ export default function CityMap({
 
       return true;
     });
-  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere]);
+  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere, continent, countriesData]);
 
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>

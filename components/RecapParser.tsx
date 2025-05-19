@@ -1,5 +1,5 @@
 import { Textarea } from '@/components/ui/textarea';
-import { CircleConfig, City, Country } from '@/types';
+import { CircleConfig, City, Continent, Country } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -14,6 +14,7 @@ export default function RecapParser({
   onAddCircle,
   setCountry,
   selectedCountry,
+  setContinent,
 }: {
   minPopulation: number;
   excludedCountries: Country[];
@@ -21,6 +22,7 @@ export default function RecapParser({
   onAddCircle: (config: CircleConfig) => void;
   setCountry: (country: string | null) => void;
   selectedCountry: string | null;
+  setContinent: (continent: string | null) => void;
 }) {
   const [recap, setRecap] = useState('');
 
@@ -39,6 +41,16 @@ export default function RecapParser({
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all`);
       if (!res.ok) throw new Error('Failed to fetch cities');
+      return res.json();
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: continents = [], isLoading: continentsLoading } = useQuery<Continent[]>({
+    queryKey: ['continents'],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/continents`);
+      if (!res.ok) throw new Error('Failed to load continents');
       return res.json();
     },
     refetchOnWindowFocus: false,
@@ -153,6 +165,16 @@ export default function RecapParser({
             greenRadius: 0,
           });
         }
+      } else if (line.toLowerCase().includes('continent: ')) {
+        // Continent hint line
+        const continent = continents.find((c) => c.name.toLowerCase() === line.toLowerCase().split('continent:')[1].split('hint from')[0].trim());
+
+        if (!continent) {
+          toast.error(`Error in recap on line ${index + 1}`, { description: 'Continent not found' });
+          continue;
+        }
+
+        setContinent(continent.continent);
       }
     }
 
@@ -162,8 +184,8 @@ export default function RecapParser({
   return (
     <div className="flex flex-col w-full gap-2">
       <Label className="block text-sm font-medium">Parse Recap</Label>
-      <Textarea className="h-40" disabled={countriesLoading || citiesLoading} placeholder="Paste /recap content here" value={recap} onChange={(e) => setRecap(e.target.value)} />
-      <Button className="cursor-pointer" disabled={countriesLoading || citiesLoading} onClick={() => parseRecap()}>
+      <Textarea className="h-40" disabled={countriesLoading || citiesLoading || continentsLoading} placeholder="Paste /recap content here" value={recap} onChange={(e) => setRecap(e.target.value)} />
+      <Button className="cursor-pointer" disabled={countriesLoading || citiesLoading || continentsLoading} onClick={() => parseRecap()}>
         Parse Recap
       </Button>
     </div>

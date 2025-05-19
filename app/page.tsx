@@ -19,6 +19,7 @@ export default function HomePage() {
   const [excludedCountries, setExcludedCountries] = useState<Country[]>([]);
   const [equatorialLine, setEquatorialLine] = useState(true);
   const [hemisphere, setHemisphere] = useState<'Both' | 'Northern Hemisphere' | 'Southern Hemisphere'>('Both');
+  const [continent, setContinent] = useState<string | null>(null);
 
   useEffect(() => {
     const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
@@ -58,6 +59,7 @@ export default function HomePage() {
           excludedCountries={excludedCountries}
           equatorialLine={equatorialLine}
           hemisphere={hemisphere}
+          continent={continent}
         />
       </div>
 
@@ -77,6 +79,8 @@ export default function HomePage() {
         setEquatorialLine={setEquatorialLine}
         hemisphere={hemisphere}
         setHemisphere={setHemisphere}
+        continent={continent}
+        setContinent={setContinent}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

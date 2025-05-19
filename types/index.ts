@@ -15,10 +15,17 @@ export type City = {
 export type Country = {
   code: string;
   name: string;
+  continent: string;
 };
 
 export type CircleConfig = {
   city: City;
   redRadius: number | null;
   greenRadius: number;
+};
+
+export type Continent = {
+  geonameId: string;
+  continent: string;
+  name: string;
 };
