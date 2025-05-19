@@ -130,7 +130,7 @@ export default function Sidebar({
 
         <CirclesList circles={circles} setCircles={setCircles} />
 
-        <div className="mt-auto self-end flex flex-row gap-2">
+        <div className="mt-auto self-end flex flex-row gap-2 pt-4">
           <Link className={buttonVariants({ variant: 'outline' })} href="https://github.com/trimpsuz/maptools" target="_blank">
             <Github />
           </Link>
