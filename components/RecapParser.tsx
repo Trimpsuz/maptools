@@ -76,7 +76,7 @@ export default function RecapParser({
         else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('is not in')[1].trim()}` });
       } else if (line.toLowerCase().includes('country: ')) {
         // Country line
-        const _country = countries.find((country) => country.name.toLowerCase() === line.toLowerCase().split('country:')[1].trim());
+        const _country = countries.find((country) => country.name.toLowerCase() === line.toLowerCase().split('country:')[1].split('hint from')[0].trim());
         if (_country) {
           setCountry(_country.code);
           country = _country.code;
