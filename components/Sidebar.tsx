@@ -11,6 +11,9 @@ import ExcludedCountriesList from './ExcludedCountriesList';
 import CirclesList from './CirclesList';
 import HemisphereSelect from './HemisphereSelect';
 import ContinentSelect from './ContinentSelect';
+import { buttonVariants } from '@/components/ui/button';
+import { Github } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Sidebar({
   sidebarOpen,
@@ -127,7 +130,10 @@ export default function Sidebar({
 
         <CirclesList circles={circles} setCircles={setCircles} />
 
-        <div className="mt-auto self-end">
+        <div className="mt-auto self-end flex flex-row gap-2">
+          <Link className={buttonVariants({ variant: 'outline' })} href="https://github.com/trimpsuz/maptools" target="_blank">
+            <Github />
+          </Link>
           <ModeToggle />
         </div>
       </div>
