@@ -164,7 +164,7 @@ export default function RecapParser({
       <Label className="block text-sm font-medium">Parse Recap</Label>
       <Textarea className="h-40" disabled={countriesLoading || citiesLoading} placeholder="Paste /recap content here" value={recap} onChange={(e) => setRecap(e.target.value)} />
       <Button className="cursor-pointer" disabled={countriesLoading || citiesLoading} onClick={() => parseRecap()}>
-        Parse recap
+        Parse Recap
       </Button>
     </div>
   );

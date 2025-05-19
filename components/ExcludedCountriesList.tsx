@@ -19,7 +19,7 @@ export default function ExcludedCountriesList({ excludedCountries, setExcludedCo
         </CollapsibleTrigger>
         <Button className="cursor-pointer" variant="destructive" onClick={() => setExcludedCountries([])}>
           <Trash2 />
-          Clear all
+          Clear All
         </Button>
         <CollapsibleContent>
           {excludedCountries.length > 0 ? (

@@ -28,7 +28,7 @@ export default function ExcludedCountriesList({ circles, setCircles }: { circles
         </CollapsibleTrigger>
         <Button className="cursor-pointer" variant="destructive" onClick={() => setCircles([])}>
           <Trash2 />
-          Clear all
+          Clear All
         </Button>
         <CollapsibleContent>
           {circles.length > 0 ? (

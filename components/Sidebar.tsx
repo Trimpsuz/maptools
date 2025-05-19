@@ -73,7 +73,7 @@ export default function Sidebar({
           <CountrySelect value={country} onChange={setCountry} />
         </div>
 
-        <CitySearch onAddCircle={handleAddCircle} minPopulation={minPopulation} />
+        <CitySearch onAddCircle={handleAddCircle} minPopulation={minPopulation} excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} setCountry={setCountry} />
 
         <div className="flex items-center space-x-2">
           <Switch id="show-possible-cities" checked={showPossibleCitiesOnly} onCheckedChange={setShowPossibleCitiesOnly} className="cursor-pointer" />

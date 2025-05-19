@@ -9,7 +9,19 @@ import type { CircleConfig, City, Country } from '@/types';
 import { findCity } from '@/lib/utils';
 import { toast } from 'sonner';
 
-export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle: (config: CircleConfig) => void; minPopulation: number }) {
+export default function CitySearch({
+  onAddCircle,
+  minPopulation,
+  excludedCountries,
+  setExcludedCountries,
+  setCountry,
+}: {
+  onAddCircle: (config: CircleConfig) => void;
+  minPopulation: number;
+  excludedCountries: Country[];
+  setExcludedCountries: (excludedCountries: Country[]) => void;
+  setCountry: (country: string | null) => void;
+}) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
 
@@ -92,6 +104,41 @@ export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle
         </Button>
         <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(null, 5)}>
           📍
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        <Button
+          disabled={citiesLoading || countriesLoading}
+          className="cursor-pointer"
+          onClick={() => {
+            const city = findCity(searchQuery, countries, cities);
+            if (typeof city === 'string') return toast.error(city);
+            if (!city) return;
+
+            const country = countries.find((country) => country.code === city.countryCode);
+            if (!country) return toast.error(`Country not found: ${city.countryCode}`);
+
+            setExcludedCountries([...excludedCountries, country]);
+          }}
+        >
+          Exclude Country
+        </Button>
+        <Button
+          disabled={citiesLoading || countriesLoading}
+          className="cursor-pointer"
+          onClick={() => {
+            const city = findCity(searchQuery, countries, cities);
+            if (typeof city === 'string') return toast.error(city);
+            if (!city) return;
+
+            const country = countries.find((country) => country.code === city.countryCode);
+            if (!country) return toast.error(`Country not found: ${city.countryCode}`);
+
+            setCountry(country.code);
+          }}
+        >
+          Set Country
         </Button>
       </div>
 
