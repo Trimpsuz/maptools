@@ -52,6 +52,7 @@ export default function Sidebar({
     md:static md:shadow-none
     ${sidebarOpen ? 'translate-x-0 md:w-80' : 'translate-x-full md:translate-x-0 md:w-14'}
     overflow-y-auto
+    max-w-xs
   `}
     >
       <div className="flex flex-col gap-2 p-4 md:p-4 relative min-h-full">
