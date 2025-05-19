@@ -17,16 +17,21 @@ export default function HomePage() {
   const [circles, setCircles] = useState<CircleConfig[]>([]);
   const [showPossibleCitiesOnly, setShowPossibleCitiesOnly] = useState(false);
   const [excludedCountries, setExcludedCountries] = useState<Country[]>([]);
+  const [equatorialLine, setEquatorialLine] = useState(true);
+  const [hemisphere, setHemisphere] = useState<'Both' | 'Northern Hemisphere' | 'Southern Hemisphere'>('Both');
 
   useEffect(() => {
     const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
+    const savedEquatorialLine = localStorage.getItem('equatorialLine');
 
     if (savedShowPossibleCitiesOnly) setShowPossibleCitiesOnly(JSON.parse(savedShowPossibleCitiesOnly));
+    if (savedEquatorialLine) setEquatorialLine(JSON.parse(savedEquatorialLine));
   }, []);
 
   useEffect(() => {
     localStorage.setItem('showPossibleCitiesOnly', JSON.stringify(showPossibleCitiesOnly));
-  }, [showPossibleCitiesOnly]);
+    localStorage.setItem('equatorialLine', JSON.stringify(equatorialLine));
+  }, [showPossibleCitiesOnly, equatorialLine]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
@@ -45,7 +50,15 @@ export default function HomePage() {
           </button>
         ) : null}
 
-        <CityMap minPopulation={minPopulation} countries={country ?? 'all'} circles={circles} showPossibleCitiesOnly={showPossibleCitiesOnly} excludedCountries={excludedCountries} />
+        <CityMap
+          minPopulation={minPopulation}
+          countries={country ?? 'all'}
+          circles={circles}
+          showPossibleCitiesOnly={showPossibleCitiesOnly}
+          excludedCountries={excludedCountries}
+          equatorialLine={equatorialLine}
+          hemisphere={hemisphere}
+        />
       </div>
 
       <Sidebar
@@ -60,6 +73,10 @@ export default function HomePage() {
         setShowPossibleCitiesOnly={setShowPossibleCitiesOnly}
         excludedCountries={excludedCountries}
         setExcludedCountries={setExcludedCountries}
+        equatorialLine={equatorialLine}
+        setEquatorialLine={setEquatorialLine}
+        hemisphere={hemisphere}
+        setHemisphere={setHemisphere}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

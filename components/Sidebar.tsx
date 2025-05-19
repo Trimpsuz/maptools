@@ -9,6 +9,7 @@ import RecapParser from './RecapParser';
 import { SetStateAction } from 'react';
 import ExcludedCountriesList from './ExcludedCountriesList';
 import CirclesList from './CirclesList';
+import HemisphereSelect from './HemisphereSelect';
 
 export default function Sidebar({
   sidebarOpen,
@@ -22,6 +23,10 @@ export default function Sidebar({
   setShowPossibleCitiesOnly,
   excludedCountries,
   setExcludedCountries,
+  equatorialLine,
+  setEquatorialLine,
+  hemisphere,
+  setHemisphere,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -34,6 +39,10 @@ export default function Sidebar({
   setShowPossibleCitiesOnly: (value: boolean) => void;
   excludedCountries: Country[];
   setExcludedCountries: (excludedCountries: Country[]) => void;
+  equatorialLine: boolean;
+  setEquatorialLine: (equatorialLine: boolean) => void;
+  hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
+  setHemisphere: (hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere') => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -71,6 +80,18 @@ export default function Sidebar({
         <div>
           <Label className="block text-sm font-medium mb-2">Country</Label>
           <CountrySelect value={country} onChange={setCountry} />
+        </div>
+
+        <div>
+          <Label className="block text-sm font-medium mb-2">Hemisphere</Label>
+          <HemisphereSelect hemisphere={hemisphere} setHemisphere={setHemisphere} />
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch id="show-equatorial-line" checked={equatorialLine} onCheckedChange={setEquatorialLine} className="cursor-pointer" />
+          <Label htmlFor="show-equatorial-line" className="text-sm">
+            Show equatorial line
+          </Label>
         </div>
 
         <CitySearch onAddCircle={handleAddCircle} minPopulation={minPopulation} excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} setCountry={setCountry} />

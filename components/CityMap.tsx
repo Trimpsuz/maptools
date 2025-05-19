@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap, Polyline } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
@@ -38,12 +38,16 @@ export default function CityMap({
   circles = [],
   showPossibleCitiesOnly = false,
   excludedCountries = [],
+  equatorialLine = true,
+  hemisphere = 'Both',
 }: {
   minPopulation: number;
   countries: string;
   circles: CircleConfig[];
   showPossibleCitiesOnly?: boolean;
   excludedCountries?: Country[];
+  equatorialLine: boolean;
+  hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
 }) {
   const { data: cities = [], isLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
@@ -65,6 +69,9 @@ export default function CityMap({
     const usedCityIds = new Set(circles.map((c) => c.city.id));
 
     return filteredCities.filter((city) => {
+      if (city.latitude < 0 && hemisphere === 'Northern Hemisphere') return false;
+      if (city.latitude > 0 && hemisphere === 'Southern Hemisphere') return false;
+
       if (excludedCountries.some((country) => country.code === city.countryCode)) return false;
 
       if (circles.length === 0) return true;
@@ -90,13 +97,22 @@ export default function CityMap({
 
       return true;
     });
-  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities]);
+  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere]);
 
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <ClusterLayer cities={visibleCities} />
       <CircleLayer circles={circles} />
+      {equatorialLine && (
+        <Polyline
+          positions={[
+            [0, -180],
+            [0, 180],
+          ]}
+          pathOptions={{ color: 'red', weight: 2 }}
+        />
+      )}
       <MapController centerOn={null} />
       {isLoading && <div className="absolute bottom-4 left-4 bg-background text-foreground px-3 py-1 rounded z-999">Loading cities...</div>}
     </MapContainer>
