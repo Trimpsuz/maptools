@@ -33,7 +33,6 @@ export function isPointWithinRadius(pointLat: number, pointLon: number, centerLa
 
 export const findCity = (query: string, countries: Country[], cities: City[]) => {
   if (!query.trim()) {
-    //toast.error('Please enter a city name');
     return 'Please enter a city name';
   }
 
@@ -56,7 +55,6 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
       if (country) {
         countryCode = country.code;
       } else {
-        //toast.error('Country not found');
         return 'Country not found';
       }
     }
@@ -72,7 +70,6 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
       if (country) {
         countryCode = country.code;
       } else {
-        //toast.error('Country not found');
         return 'Country not found';
       }
     }
@@ -89,7 +86,6 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
   }
 
   if (filteredCities.length === 0) {
-    //toast.error('City not found');
     return 'City not found';
   }
 

@@ -68,7 +68,7 @@ export default function CitySearch({ onAddCircle, minPopulation }: { onAddCircle
         <Label className="block text-sm font-medium">Search City</Label>
         <div className="flex gap-2">
           <Input disabled={citiesLoading || countriesLoading} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="City, Region, Country" className="w-full" />
-          <Button className="cursor-pointer" variant="outline" size="icon" onClick={() => setSearchQuery('')} title="Clear search">
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="icon" onClick={() => setSearchQuery('')} title="Clear search">
             <X size={16} />
           </Button>
         </div>

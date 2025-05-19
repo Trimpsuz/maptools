@@ -32,13 +32,6 @@ export default function HomePage() {
     setSidebarOpen(window.innerWidth >= 768);
   }, []);
 
-  const handleAddCircle = (circleConfig: CircleConfig) => {
-    setCircles((prevCircles) => {
-      const filteredCircles = prevCircles.filter((circle) => circle.city.id !== circleConfig.city.id);
-      return [...filteredCircles, circleConfig];
-    });
-  };
-
   return (
     <div className="flex h-screen">
       <div className="flex-1 relative">
@@ -61,7 +54,8 @@ export default function HomePage() {
         setMinPopulation={setMinPopulation}
         country={country}
         setCountry={setCountry}
-        onAddCircle={handleAddCircle}
+        circles={circles}
+        setCircles={setCircles}
         showPossibleCitiesOnly={showPossibleCitiesOnly}
         setShowPossibleCitiesOnly={setShowPossibleCitiesOnly}
         excludedCountries={excludedCountries}

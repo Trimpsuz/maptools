@@ -47,7 +47,7 @@ export default function RecapParser({
   function parseRecap() {
     if (recap.trim() === '') toast.error('Empty recap, please paste a recap');
 
-    const newExcludedCountries: Country[] = [];
+    const newExcludedCountries: Country[] = [...excludedCountries];
 
     let country: string | null = selectedCountry;
 
@@ -59,6 +59,7 @@ export default function RecapParser({
       if (line.toLowerCase().includes('answer is not in ')) {
         // Not in country line
         const country = countries.find((country) => country.name.toLowerCase() === line.toLowerCase().split('is not in')[1].trim());
+        if (country && newExcludedCountries.includes(country)) continue;
         if (country) newExcludedCountries.push(country);
         else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('is not in')[1].trim()}` });
       } else if (line.toLowerCase().includes('country: ')) {
@@ -155,7 +156,7 @@ export default function RecapParser({
       }
     }
 
-    setExcludedCountries([...excludedCountries, ...newExcludedCountries]);
+    setExcludedCountries(newExcludedCountries);
   }
 
   return (
