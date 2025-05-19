@@ -29,3 +29,9 @@ export type Continent = {
   continent: string;
   name: string;
 };
+
+export type AddCityCircleEvent = CustomEvent<{
+  id: string;
+  redRadius: number;
+  greenRadius: number;
+}>;
