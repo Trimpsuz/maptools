@@ -11,8 +11,8 @@ import ExcludedCountriesList from './ExcludedCountriesList';
 import CirclesList from './CirclesList';
 import HemisphereSelect from './HemisphereSelect';
 import ContinentSelect from './ContinentSelect';
-import { buttonVariants } from '@/components/ui/button';
-import { Github } from 'lucide-react';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Github, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Sidebar({
@@ -59,6 +59,14 @@ export default function Sidebar({
     });
   };
 
+  const clearAll = () => {
+    setCountry(null);
+    setCircles([]);
+    setExcludedCountries([]);
+    setHemisphere('Both');
+    setContinent(null);
+  };
+
   return (
     <aside
       className={`
@@ -73,6 +81,11 @@ export default function Sidebar({
   `}
     >
       <div className="flex flex-col gap-2 p-4 md:p-4 relative min-h-full">
+        <Button className="cursor-pointer" variant="destructive" onClick={() => clearAll()}>
+          <Trash2 />
+          Clear All
+        </Button>
+
         <div>
           <Label className="block text-sm font-medium mb-2">Min Population</Label>
           <Input
