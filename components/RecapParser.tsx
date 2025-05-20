@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { findCity } from '@/lib/utils';
 import anyAscii from 'any-ascii';
+import { Trash2 } from 'lucide-react';
 
 export default function RecapParser({
   minPopulation,
@@ -186,9 +187,15 @@ export default function RecapParser({
     <div className="flex flex-col w-full gap-2">
       <Label className="block text-sm font-medium">Parse Recap</Label>
       <Textarea className="h-40" disabled={countriesLoading || citiesLoading || continentsLoading} placeholder="Paste /recap content here" value={recap} onChange={(e) => setRecap(e.target.value)} />
-      <Button className="cursor-pointer" disabled={countriesLoading || citiesLoading || continentsLoading} onClick={() => parseRecap()}>
-        Parse Recap
-      </Button>
+      <div className="flex flex-row gap-2 w-full">
+        <Button className="cursor-pointer flex-grow" disabled={countriesLoading || citiesLoading || continentsLoading} onClick={() => parseRecap()}>
+          Parse Recap
+        </Button>
+        <Button disabled={countriesLoading || citiesLoading || continentsLoading} variant="outline" size="icon" className="cursor-pointer" onClick={() => setRecap('')}>
+          <Trash2 />
+          <span className="sr-only">Clear Recap</span>
+        </Button>
+      </div>
     </div>
   );
 }
