@@ -1,6 +1,7 @@
 import { City, Country } from '@/types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import anyAscii from 'any-ascii';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,7 +52,7 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
     if (countryInput.length === 2) {
       countryCode = countryInput.toUpperCase();
     } else {
-      const country = countries.find((c) => c.name.toLowerCase() === countryInput.toLowerCase());
+      const country = countries.find((c) => anyAscii(c.name.toLowerCase()) === anyAscii(countryInput.toLowerCase()));
       if (country) {
         countryCode = country.code;
       } else {
@@ -66,7 +67,7 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
     if (countryInput.length === 2) {
       countryCode = countryInput.toUpperCase();
     } else {
-      const country = countries.find((c) => c.name.toLowerCase() === countryInput.toLowerCase());
+      const country = countries.find((c) => anyAscii(c.name.toLowerCase()) === anyAscii(countryInput.toLowerCase()));
       if (country) {
         countryCode = country.code;
       } else {
@@ -75,14 +76,14 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
     }
   }
 
-  let filteredCities = cities.filter((city) => city.name.split(', ')[0].toLowerCase() === cityName.toLowerCase());
+  let filteredCities = cities.filter((city) => anyAscii(city.name.split(', ')[0].toLowerCase()) === anyAscii(cityName.toLowerCase()));
 
   if (countryCode) {
     filteredCities = filteredCities.filter((city) => city.countryCode === countryCode);
   }
 
   if (regionName) {
-    filteredCities = filteredCities.filter((city) => city.admin1Name?.toLowerCase().includes(regionName.toLowerCase()));
+    filteredCities = filteredCities.filter((city) => anyAscii(city.admin1Name?.toLowerCase() ?? '').includes(anyAscii(regionName.toLowerCase())));
   }
 
   if (filteredCities.length === 0) {

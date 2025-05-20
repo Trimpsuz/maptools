@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { findCity } from '@/lib/utils';
+import anyAscii from 'any-ascii';
 
 export default function RecapParser({
   minPopulation,
@@ -70,13 +71,13 @@ export default function RecapParser({
 
       if (line.toLowerCase().includes('answer is not in ')) {
         // Not in country line
-        const country = countries.find((country) => country.name.toLowerCase() === line.toLowerCase().split('is not in')[1].trim());
+        const country = countries.find((country) => anyAscii(country.name.toLowerCase()) === anyAscii(line.toLowerCase().split('is not in')[1].trim()));
         if (country && newExcludedCountries.includes(country)) continue;
         if (country) newExcludedCountries.push(country);
         else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('is not in')[1].trim()}` });
       } else if (line.toLowerCase().includes('country: ')) {
         // Country line
-        const _country = countries.find((country) => country.name.toLowerCase() === line.toLowerCase().split('country:')[1].split('hint from')[0].trim());
+        const _country = countries.find((country) => anyAscii(country.name.toLowerCase()) === anyAscii(line.toLowerCase().split('country:')[1].split('hint from')[0].trim()));
         if (_country) {
           setCountry(_country.code);
           country = _country.code;
@@ -167,7 +168,7 @@ export default function RecapParser({
         }
       } else if (line.toLowerCase().includes('continent: ')) {
         // Continent hint line
-        const continent = continents.find((c) => c.name.toLowerCase() === line.toLowerCase().split('continent:')[1].split('hint from')[0].trim());
+        const continent = continents.find((c) => anyAscii(c.name.toLowerCase()) === anyAscii(line.toLowerCase().split('continent:')[1].split('hint from')[0].trim()));
 
         if (!continent) {
           toast.error(`Error in recap on line ${index + 1}`, { description: 'Continent not found' });
