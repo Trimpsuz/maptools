@@ -19,6 +19,8 @@ export default function RecapParser({
   selectedCountry,
   setContinent,
   setUsState,
+  excludedUsStates,
+  setExcludedUsStates,
   setClosestGuess,
 }: {
   minPopulation: number;
@@ -29,6 +31,8 @@ export default function RecapParser({
   selectedCountry: string | null;
   setContinent: (continent: string | null) => void;
   setUsState: (usState: string | null) => void;
+  excludedUsStates: string[];
+  setExcludedUsStates: (excludedUsStates: string[]) => void;
   setClosestGuess: (closestGuess: City | null) => void;
 }) {
   const [recap, setRecap] = useState('');
@@ -67,6 +71,7 @@ export default function RecapParser({
     if (recap.trim() === '') toast.error('Empty recap, please paste a recap');
 
     const newExcludedCountries: Country[] = [...excludedCountries];
+    const newExcludedUsStates: string[] = [...excludedUsStates];
 
     let country: string | null = selectedCountry;
 
@@ -75,19 +80,27 @@ export default function RecapParser({
     for (const [index, line] of recap.split('\n').entries()) {
       if (line.trim() === '') continue;
 
-      if (line.toLowerCase().includes('answer is not in ')) {
-        // Not in country line
-        const country = countries.find((country) => anyAscii(country.name.toLowerCase()) === anyAscii(line.toLowerCase().split('is not in')[1].trim()));
-        if (country && newExcludedCountries.includes(country)) continue;
-        if (country) newExcludedCountries.push(country);
-        else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('is not in')[1].trim()}` });
-      } else if (line.toLowerCase().includes('country: ')) {
+      if (line.toLowerCase().includes('country: ')) {
         // Country line
         const _country = countries.find((country) => anyAscii(country.name.toLowerCase()) === anyAscii(line.toLowerCase().split('country:')[1].split('hint from')[0].trim()));
         if (_country) {
           setCountry(_country.code);
           country = _country.code;
         } else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('country:')[1].trim()}` });
+      } else if (line.toLowerCase().includes('answer is not in ')) {
+        // Not in country/state line
+        const _country = countries.find((country) => anyAscii(country.name.toLowerCase()) === anyAscii(line.toLowerCase().split('is not in')[1].trim()));
+        if (_country && newExcludedCountries.includes(_country)) continue;
+        if (_country) newExcludedCountries.push(_country);
+        else {
+          if (country === 'US') {
+            const usState = usStates.find((usState) => usState.name.toLowerCase() === line.toLowerCase().split('is not in')[1].trim());
+            if (usState && newExcludedUsStates.includes(usState.code)) continue;
+            if (usState) newExcludedUsStates.push(usState.code);
+            // This is disabled for now because recap shows admin1 of any countries guessed not just US states
+            /*else toast.error(`Error in recap on line ${index + 1}`, { description: `US state not found: ${line.toLowerCase().split('is not in')[1].trim()}` });*/
+          } else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('is not in')[1].trim()}` });
+        }
       } else if (line.toLocaleLowerCase().includes('us state: ')) {
         // US state line
         if (!country || country !== 'US') {
@@ -201,6 +214,7 @@ export default function RecapParser({
     }
 
     setExcludedCountries(newExcludedCountries);
+    setExcludedUsStates(newExcludedUsStates);
   }
 
   return (

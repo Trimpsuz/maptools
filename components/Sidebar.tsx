@@ -180,6 +180,8 @@ export default function Sidebar({
           selectedCountry={country}
           setContinent={setContinent}
           setUsState={setUsState}
+          excludedUsStates={excludedUsStates}
+          setExcludedUsStates={setExcludedUsStates}
           setClosestGuess={setClosestGuess}
         />
 
