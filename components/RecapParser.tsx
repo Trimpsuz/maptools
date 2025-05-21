@@ -19,6 +19,7 @@ export default function RecapParser({
   selectedCountry,
   setContinent,
   setUsState,
+  setClosestGuess,
 }: {
   minPopulation: number;
   excludedCountries: Country[];
@@ -28,6 +29,7 @@ export default function RecapParser({
   selectedCountry: string | null;
   setContinent: (continent: string | null) => void;
   setUsState: (usState: string | null) => void;
+  setClosestGuess: (closestGuess: City | null) => void;
 }) {
   const [recap, setRecap] = useState('');
 
@@ -95,6 +97,12 @@ export default function RecapParser({
           if (usState) setUsState(usState.code);
           else toast.error(`Error in recap on line ${index + 1}`, { description: `US state not found: ${line.toLowerCase().split('us state:')[1].trim()}` });
         }
+      } else if (line.toLocaleLowerCase().includes('closest guess: ')) {
+        // Closest guess line
+        const city = findCity(line.toLowerCase().split('closest guess:')[1].trim(), countries, cities);
+
+        if (typeof city === 'string') toast.error(`Error in recap on line ${index + 1}`, { description: city });
+        else setClosestGuess(city);
       } else if (line.toLowerCase().includes('answer is under 100km away from ')) {
         // Within 100km (🤏) line
 

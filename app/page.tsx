@@ -1,7 +1,7 @@
 'use client';
 
 import Sidebar from '@/components/Sidebar';
-import { AddCityCircleEvent, CircleConfig, City, Country } from '@/types';
+import { AddCityCircleEvent, CircleConfig, City, ClosestGuessEvent, Country } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { Menu } from 'lucide-react';
 import dynamic from 'next/dynamic';
@@ -22,6 +22,8 @@ export default function HomePage() {
   const [hemisphere, setHemisphere] = useState<'Both' | 'Northern Hemisphere' | 'Southern Hemisphere'>('Both');
   const [continent, setContinent] = useState<string | null>(null);
   const [usState, setUsState] = useState<string | null>(null);
+  const [closestGuess, setClosestGuess] = useState<City | null>(null);
+  const [useClosestGuess, setUseClosestGuess] = useState(false);
 
   useEffect(() => {
     if (country !== 'US') setUsState(null);
@@ -47,15 +49,18 @@ export default function HomePage() {
   useEffect(() => {
     const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
     const savedEquatorialLine = localStorage.getItem('equatorialLine');
+    const savedUseClosestGuess = localStorage.getItem('useClosestGuess');
 
     if (savedShowPossibleCitiesOnly) setShowPossibleCitiesOnly(JSON.parse(savedShowPossibleCitiesOnly));
     if (savedEquatorialLine) setEquatorialLine(JSON.parse(savedEquatorialLine));
+    if (savedUseClosestGuess) setUseClosestGuess(JSON.parse(savedUseClosestGuess));
   }, []);
 
   useEffect(() => {
     localStorage.setItem('showPossibleCitiesOnly', JSON.stringify(showPossibleCitiesOnly));
     localStorage.setItem('equatorialLine', JSON.stringify(equatorialLine));
-  }, [showPossibleCitiesOnly, equatorialLine]);
+    localStorage.setItem('useClosestGuess', JSON.stringify(useClosestGuess));
+  }, [showPossibleCitiesOnly, equatorialLine, useClosestGuess]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
@@ -90,6 +95,21 @@ export default function HomePage() {
     return () => document.removeEventListener('addCityCircle', handler);
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as ClosestGuessEvent;
+      if (citiesLoadingRef.current) return;
+
+      const city = citiesRef.current.find((city) => city.id === customEvent.detail.id);
+      if (!city) return;
+
+      setClosestGuess(city);
+    };
+
+    document.addEventListener('closestGuess', handler);
+    return () => document.removeEventListener('closestGuess', handler);
+  }, []);
+
   return (
     <div className="flex h-screen">
       <div className="flex-1 relative">
@@ -113,6 +133,8 @@ export default function HomePage() {
           hemisphere={hemisphere}
           continent={continent}
           usState={usState}
+          closestGuess={closestGuess}
+          useClosestGuess={useClosestGuess}
         />
       </div>
 
@@ -136,6 +158,10 @@ export default function HomePage() {
         setContinent={setContinent}
         usState={usState}
         setUsState={setUsState}
+        closestGuess={closestGuess}
+        setClosestGuess={setClosestGuess}
+        useClosestGuess={useClosestGuess}
+        setUseClosestGuess={setUseClosestGuess}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

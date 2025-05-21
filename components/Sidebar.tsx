@@ -3,7 +3,7 @@ import { ModeToggle } from '@/components/ModeToggle';
 import CitySearch from '@/components/CitySearch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CircleConfig, Country } from '@/types';
+import { CircleConfig, City, Country } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import RecapParser from './RecapParser';
 import { SetStateAction } from 'react';
@@ -36,6 +36,10 @@ export default function Sidebar({
   setContinent,
   usState,
   setUsState,
+  closestGuess,
+  setClosestGuess,
+  useClosestGuess,
+  setUseClosestGuess,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -56,6 +60,10 @@ export default function Sidebar({
   setContinent: (continent: string | null) => void;
   usState: string | null;
   setUsState: (usState: string | null) => void;
+  closestGuess: City | null;
+  setClosestGuess: (closestGuess: City | null) => void;
+  useClosestGuess: boolean;
+  setUseClosestGuess: (useClosestGuess: boolean) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -71,6 +79,7 @@ export default function Sidebar({
     setHemisphere('Both');
     setContinent(null);
     setUsState(null);
+    setClosestGuess(null);
   };
 
   return (
@@ -133,7 +142,17 @@ export default function Sidebar({
           </Label>
         </div>
 
-        <CitySearch onAddCircle={handleAddCircle} minPopulation={minPopulation} excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} setCountry={setCountry} />
+        <CitySearch
+          onAddCircle={handleAddCircle}
+          minPopulation={minPopulation}
+          excludedCountries={excludedCountries}
+          setExcludedCountries={setExcludedCountries}
+          setCountry={setCountry}
+          closestGuess={closestGuess}
+          setClosestGuess={setClosestGuess}
+          setUseClosestGuess={setUseClosestGuess}
+          useClosestGuess={useClosestGuess}
+        />
 
         <div className="flex items-center space-x-2">
           <Switch id="show-possible-cities" checked={showPossibleCitiesOnly} onCheckedChange={setShowPossibleCitiesOnly} className="cursor-pointer" />
@@ -151,6 +170,7 @@ export default function Sidebar({
           selectedCountry={country}
           setContinent={setContinent}
           setUsState={setUsState}
+          setClosestGuess={setClosestGuess}
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />

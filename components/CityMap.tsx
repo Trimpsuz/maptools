@@ -5,7 +5,7 @@ import { useEffect, useMemo } from 'react';
 import ClusterLayer from './ClusterLayer';
 import CircleLayer from './CircleLayer';
 import type { CircleConfig, City, Country } from '@/types';
-import { isPointWithinRadius } from '@/lib/utils';
+import { calculateDistance, isPointWithinRadius } from '@/lib/utils';
 
 function MapController({ centerOn }: { centerOn: { lat: number; lng: number } | null }) {
   const map = useMap();
@@ -42,6 +42,8 @@ export default function CityMap({
   hemisphere = 'Both',
   continent,
   usState,
+  closestGuess,
+  useClosestGuess,
 }: {
   minPopulation: number;
   countries: string;
@@ -52,6 +54,8 @@ export default function CityMap({
   hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
   continent: string | null;
   usState: string | null;
+  closestGuess: City | null;
+  useClosestGuess: boolean;
 }) {
   const { data: cities = [], isLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
@@ -96,6 +100,18 @@ export default function CityMap({
 
       if (usedCityIds.has(city.id)) return false;
 
+      if (useClosestGuess && closestGuess) {
+        const distanceToClosestGuess = calculateDistance(city.latitude, city.longitude, closestGuess.latitude, closestGuess.longitude);
+
+        for (const circle of circles) {
+          const distanceToCircle = calculateDistance(city.latitude, city.longitude, circle.city.latitude, circle.city.longitude);
+
+          if (distanceToCircle < distanceToClosestGuess) {
+            return false;
+          }
+        }
+      }
+
       for (const circle of circles) {
         if (circle.city.countryCode !== city.countryCode && circle.greenRadius > 0) return false;
         if (circle.greenRadius > 0 && !isPointWithinRadius(city.latitude, city.longitude, circle.city.latitude, circle.city.longitude, circle.greenRadius)) {
@@ -115,7 +131,7 @@ export default function CityMap({
 
       return true;
     });
-  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere, continent, countriesData, usState]);
+  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere, continent, countriesData, usState, closestGuess, useClosestGuess]);
 
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>

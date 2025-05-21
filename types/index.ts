@@ -41,3 +41,5 @@ export type UsState = {
   code: string;
   name: string;
 };
+
+export type ClosestGuessEvent = CustomEvent<{ id: string }>;

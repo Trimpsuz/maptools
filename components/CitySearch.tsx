@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { SquareSquare, Trash2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -15,12 +15,20 @@ export default function CitySearch({
   excludedCountries,
   setExcludedCountries,
   setCountry,
+  closestGuess,
+  setClosestGuess,
+  useClosestGuess,
+  setUseClosestGuess,
 }: {
   onAddCircle: (config: CircleConfig) => void;
   minPopulation: number;
   excludedCountries: Country[];
   setExcludedCountries: (excludedCountries: Country[]) => void;
   setCountry: (country: string | null) => void;
+  closestGuess: City | null;
+  setClosestGuess: (closestGuess: City | null) => void;
+  useClosestGuess: boolean;
+  setUseClosestGuess: (useClosestGuess: boolean) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
@@ -74,6 +82,14 @@ export default function CitySearch({
     }
   };
 
+  const handleClosestGuess = () => {
+    const city = findCity(searchQuery, countries, cities);
+    if (typeof city === 'string') return toast.error(city);
+    if (!city) return;
+
+    setClosestGuess(city);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="flex flex-col gap-2">
@@ -86,7 +102,12 @@ export default function CitySearch({
         </div>
       </div>
 
-      <div className="grid grid-cols-6 gap-1">
+      <div className={`grid ${useClosestGuess ? 'grid-cols-7' : 'grid-cols-6'} gap-1`}>
+        {useClosestGuess && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleClosestGuess()}>
+            ⬇️
+          </Button>
+        )}
         <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(100, 0)}>
           ❌
         </Button>
@@ -140,6 +161,45 @@ export default function CitySearch({
         >
           Set Country
         </Button>
+      </div>
+
+      {useClosestGuess && (
+        <div className="flex flex-col">
+          <Label className="block text-sm font-medium">Closest guess</Label>
+          {closestGuess ? (
+            <div className="flex flex-row items-center gap-2">
+              <p className="text-md text-foreground">
+                {closestGuess.name.split(', ')[0]}, {closestGuess.admin1Name ? `${closestGuess.admin1Name},` : ''} {closestGuess.countryCode}
+              </p>
+              <div className="ml-auto flex flex-row gap-2">
+                <Button
+                  size={'sm'}
+                  className="cursor-pointer"
+                  onClick={() => {
+                    const mapEvent = new CustomEvent('centerMap', {
+                      detail: { lat: closestGuess.latitude, lng: closestGuess.longitude },
+                    });
+                    window.dispatchEvent(mapEvent);
+                  }}
+                >
+                  <SquareSquare />
+                </Button>
+                <Button size={'sm'} className="cursor-pointer" variant="destructive" onClick={() => setClosestGuess(null)}>
+                  <Trash2 />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-sm text-muted-foreground p-2">No closest guess</div>
+          )}
+        </div>
+      )}
+
+      <div className="flex items-center gap-2">
+        <Switch checked={useClosestGuess} onCheckedChange={setUseClosestGuess} id="center-on-circle" className="cursor-pointer" />
+        <Label htmlFor="center-on-circle" className="text-sm">
+          Use closest guess
+        </Label>
       </div>
 
       <div className="flex items-center gap-2">
