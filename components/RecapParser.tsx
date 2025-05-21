@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { findCity } from '@/lib/utils';
 import anyAscii from 'any-ascii';
 import { Trash2 } from 'lucide-react';
+import { usStates } from '@/lib/constants';
 
 export default function RecapParser({
   minPopulation,
@@ -17,6 +18,7 @@ export default function RecapParser({
   setCountry,
   selectedCountry,
   setContinent,
+  setUsState,
 }: {
   minPopulation: number;
   excludedCountries: Country[];
@@ -25,6 +27,7 @@ export default function RecapParser({
   setCountry: (country: string | null) => void;
   selectedCountry: string | null;
   setContinent: (continent: string | null) => void;
+  setUsState: (usState: string | null) => void;
 }) {
   const [recap, setRecap] = useState('');
 
@@ -83,6 +86,15 @@ export default function RecapParser({
           setCountry(_country.code);
           country = _country.code;
         } else toast.error(`Error in recap on line ${index + 1}`, { description: `Country not found: ${line.toLowerCase().split('country:')[1].trim()}` });
+      } else if (line.toLocaleLowerCase().includes('us state: ')) {
+        // US state line
+        if (!country || country !== 'US') {
+          toast.error(`Error in recap on line ${index + 1}`, { description: 'Cannot use US state outside of US' });
+        } else {
+          const usState = usStates.find((usState) => usState.name.toLowerCase() === line.toLowerCase().split('us state:')[1].trim());
+          if (usState) setUsState(usState.code);
+          else toast.error(`Error in recap on line ${index + 1}`, { description: `US state not found: ${line.toLowerCase().split('us state:')[1].trim()}` });
+        }
       } else if (line.toLowerCase().includes('answer is under 100km away from ')) {
         // Within 100km (🤏) line
 

@@ -14,6 +14,7 @@ import ContinentSelect from './ContinentSelect';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Github, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import UsStateSelect from './UsStateSelect';
 
 export default function Sidebar({
   sidebarOpen,
@@ -33,6 +34,8 @@ export default function Sidebar({
   setHemisphere,
   continent,
   setContinent,
+  usState,
+  setUsState,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -51,6 +54,8 @@ export default function Sidebar({
   setHemisphere: (hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere') => void;
   continent: string | null;
   setContinent: (continent: string | null) => void;
+  usState: string | null;
+  setUsState: (usState: string | null) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -65,6 +70,7 @@ export default function Sidebar({
     setExcludedCountries([]);
     setHemisphere('Both');
     setContinent(null);
+    setUsState(null);
   };
 
   return (
@@ -103,6 +109,13 @@ export default function Sidebar({
           <CountrySelect value={country} onChange={setCountry} />
         </div>
 
+        {country && country === 'US' && (
+          <div>
+            <Label className="block text-sm font-medium mb-2">US State</Label>
+            <UsStateSelect value={usState} onChange={setUsState} />
+          </div>
+        )}
+
         <div>
           <Label className="block text-sm font-medium mb-2">Continent</Label>
           <ContinentSelect value={continent} onChange={setContinent} />
@@ -137,6 +150,7 @@ export default function Sidebar({
           setCountry={setCountry}
           selectedCountry={country}
           setContinent={setContinent}
+          setUsState={setUsState}
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />

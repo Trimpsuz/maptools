@@ -21,6 +21,11 @@ export default function HomePage() {
   const [equatorialLine, setEquatorialLine] = useState(true);
   const [hemisphere, setHemisphere] = useState<'Both' | 'Northern Hemisphere' | 'Southern Hemisphere'>('Both');
   const [continent, setContinent] = useState<string | null>(null);
+  const [usState, setUsState] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (country !== 'US') setUsState(null);
+  }, [country]);
 
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
@@ -107,6 +112,7 @@ export default function HomePage() {
           equatorialLine={equatorialLine}
           hemisphere={hemisphere}
           continent={continent}
+          usState={usState}
         />
       </div>
 
@@ -128,6 +134,8 @@ export default function HomePage() {
         setHemisphere={setHemisphere}
         continent={continent}
         setContinent={setContinent}
+        usState={usState}
+        setUsState={setUsState}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

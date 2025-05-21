@@ -5,7 +5,7 @@ QOL tools for the Guess the City Discord bot. Basically, this project aims to be
 ## Features
 
 - Map with a marker for each city
-- Filter cities by **population**, **country**, **continent** and **hemisphere**
+- Filter cities by **population**, **country** (and state in US), **continent** and **hemisphere**
 - Create circles based on information the bot provides, ex. not within 100km or within 50km
 - Exclude countries
 - Only show markers which fit the required circles, countries etc filters

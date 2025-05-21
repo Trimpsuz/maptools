@@ -6,6 +6,7 @@ export type City = {
   longitude: number;
   population: number;
   countryCode: string;
+  admin1?: string;
   admin1Name?: string;
   countryRequired?: boolean;
   admin1Required?: boolean;
@@ -35,3 +36,8 @@ export type AddCityCircleEvent = CustomEvent<{
   redRadius: number;
   greenRadius: number;
 }>;
+
+export type UsState = {
+  code: string;
+  name: string;
+};
