@@ -42,6 +42,7 @@ export default function CityMap({
   hemisphere = 'Both',
   continent,
   usState,
+  excludedUsStates,
   closestGuess,
   useClosestGuess,
 }: {
@@ -54,6 +55,7 @@ export default function CityMap({
   hemisphere: 'Both' | 'Northern Hemisphere' | 'Southern Hemisphere';
   continent: string | null;
   usState: string | null;
+  excludedUsStates: string[];
   closestGuess: City | null;
   useClosestGuess: boolean;
 }) {
@@ -88,6 +90,7 @@ export default function CityMap({
 
     return filteredCities.filter((city) => {
       if (usState && city.countryCode === 'US' && city.admin1 !== usState) return false;
+      if (city.countryCode === 'US' && city.admin1 && excludedUsStates.includes(city.admin1)) return false;
 
       if (continent && countriesData.find((country) => country.code === city.countryCode)?.continent !== continent) return false;
 
@@ -131,7 +134,7 @@ export default function CityMap({
 
       return true;
     });
-  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere, continent, countriesData, usState, closestGuess, useClosestGuess]);
+  }, [circles, showPossibleCitiesOnly, excludedCountries, countries, cities, hemisphere, continent, countriesData, usState, closestGuess, useClosestGuess, excludedUsStates]);
 
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>

@@ -14,21 +14,29 @@ export default function CitySearch({
   minPopulation,
   excludedCountries,
   setExcludedCountries,
+  country,
   setCountry,
   closestGuess,
   setClosestGuess,
   useClosestGuess,
   setUseClosestGuess,
+  setUsState,
+  excludedUsStates,
+  setExcludedUsStates,
 }: {
   onAddCircle: (config: CircleConfig) => void;
   minPopulation: number;
   excludedCountries: Country[];
   setExcludedCountries: (excludedCountries: Country[]) => void;
+  country: string | null;
   setCountry: (country: string | null) => void;
   closestGuess: City | null;
   setClosestGuess: (closestGuess: City | null) => void;
   useClosestGuess: boolean;
   setUseClosestGuess: (useClosestGuess: boolean) => void;
+  setUsState: (usState: string | null) => void;
+  excludedUsStates: string[];
+  setExcludedUsStates: (excludedUsStates: string[]) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
@@ -162,6 +170,39 @@ export default function CitySearch({
           Set Country
         </Button>
       </div>
+
+      {country && country === 'US' && (
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            disabled={citiesLoading || countriesLoading}
+            className="cursor-pointer"
+            onClick={() => {
+              const city = findCity(searchQuery, countries, cities);
+              if (typeof city === 'string') return toast.error(city);
+              if (!city) return;
+              if (!city.admin1) return toast.error(`US state not found: ${city.countryCode}`);
+
+              setExcludedUsStates([...excludedUsStates, city.admin1]);
+            }}
+          >
+            Exclude State
+          </Button>
+          <Button
+            disabled={citiesLoading || countriesLoading}
+            className="cursor-pointer"
+            onClick={() => {
+              const city = findCity(searchQuery, countries, cities);
+              if (typeof city === 'string') return toast.error(city);
+              if (!city) return;
+              if (!city.admin1) return toast.error(`US state not found: ${city.countryCode}`);
+
+              setUsState(city.admin1);
+            }}
+          >
+            Set State
+          </Button>
+        </div>
+      )}
 
       {useClosestGuess && (
         <div className="flex flex-col">

@@ -15,6 +15,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Github, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import UsStateSelect from './UsStateSelect';
+import ExcludedUsStatesList from './ExcludedUsStatesList';
 
 export default function Sidebar({
   sidebarOpen,
@@ -40,6 +41,8 @@ export default function Sidebar({
   setClosestGuess,
   useClosestGuess,
   setUseClosestGuess,
+  excludedUsStates,
+  setExcludedUsStates,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -64,6 +67,8 @@ export default function Sidebar({
   setClosestGuess: (closestGuess: City | null) => void;
   useClosestGuess: boolean;
   setUseClosestGuess: (useClosestGuess: boolean) => void;
+  excludedUsStates: string[];
+  setExcludedUsStates: (excludedUsStates: string[]) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -79,6 +84,7 @@ export default function Sidebar({
     setHemisphere('Both');
     setContinent(null);
     setUsState(null);
+    setExcludedUsStates([]);
     setClosestGuess(null);
   };
 
@@ -147,11 +153,15 @@ export default function Sidebar({
           minPopulation={minPopulation}
           excludedCountries={excludedCountries}
           setExcludedCountries={setExcludedCountries}
+          country={country}
           setCountry={setCountry}
           closestGuess={closestGuess}
           setClosestGuess={setClosestGuess}
           setUseClosestGuess={setUseClosestGuess}
           useClosestGuess={useClosestGuess}
+          setUsState={setUsState}
+          excludedUsStates={excludedUsStates}
+          setExcludedUsStates={setExcludedUsStates}
         />
 
         <div className="flex items-center space-x-2">
@@ -174,6 +184,8 @@ export default function Sidebar({
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />
+
+        {country === 'US' && <ExcludedUsStatesList excludedUsStates={excludedUsStates} setExcludedUsStates={setExcludedUsStates} />}
 
         <CirclesList circles={circles} setCircles={setCircles} />
 

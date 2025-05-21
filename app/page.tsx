@@ -22,6 +22,7 @@ export default function HomePage() {
   const [hemisphere, setHemisphere] = useState<'Both' | 'Northern Hemisphere' | 'Southern Hemisphere'>('Both');
   const [continent, setContinent] = useState<string | null>(null);
   const [usState, setUsState] = useState<string | null>(null);
+  const [excludedUsStates, setExcludedUsStates] = useState<string[]>([]);
   const [closestGuess, setClosestGuess] = useState<City | null>(null);
   const [useClosestGuess, setUseClosestGuess] = useState(false);
 
@@ -133,6 +134,7 @@ export default function HomePage() {
           hemisphere={hemisphere}
           continent={continent}
           usState={usState}
+          excludedUsStates={excludedUsStates}
           closestGuess={closestGuess}
           useClosestGuess={useClosestGuess}
         />
@@ -157,6 +159,8 @@ export default function HomePage() {
         continent={continent}
         setContinent={setContinent}
         usState={usState}
+        excludedUsStates={excludedUsStates}
+        setExcludedUsStates={setExcludedUsStates}
         setUsState={setUsState}
         closestGuess={closestGuess}
         setClosestGuess={setClosestGuess}
