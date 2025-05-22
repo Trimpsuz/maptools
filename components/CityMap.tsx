@@ -116,7 +116,6 @@ export default function CityMap({
       }
 
       for (const circle of circles) {
-        if (circle.city.countryCode !== city.countryCode && circle.greenRadius > 0) return false;
         if (circle.greenRadius > 0 && !isPointWithinRadius(city.latitude, city.longitude, circle.city.latitude, circle.city.longitude, circle.greenRadius)) {
           return false;
         }
