@@ -16,6 +16,7 @@ import { Github, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import UsStateSelect from './UsStateSelect';
 import ExcludedUsStatesList from './ExcludedUsStatesList';
+import LoadSave from './LoadSave';
 
 export default function Sidebar({
   sidebarOpen,
@@ -102,6 +103,26 @@ export default function Sidebar({
   `}
     >
       <div className="flex flex-col gap-2 p-4 md:p-4 relative min-h-full">
+        <LoadSave
+          minPopulation={minPopulation}
+          country={country}
+          circles={circles}
+          excludedCountries={excludedCountries}
+          hemisphere={hemisphere}
+          continent={continent}
+          closestGuess={closestGuess}
+          usState={usState}
+          excludedUsStates={excludedUsStates}
+          setCountry={setCountry}
+          setExcludedCountries={setExcludedCountries}
+          setHemisphere={setHemisphere}
+          setContinent={setContinent}
+          setClosestGuess={setClosestGuess}
+          setUsState={setUsState}
+          setExcludedUsStates={setExcludedUsStates}
+          onAddCircle={handleAddCircle}
+        />
+
         <Button className="cursor-pointer" variant="destructive" onClick={() => clearAll()}>
           <Trash2 />
           Clear All

@@ -45,6 +45,7 @@ export default function CityMap({
   excludedUsStates,
   closestGuess,
   useClosestGuess,
+  loadingState,
 }: {
   minPopulation: number;
   countries: string;
@@ -58,8 +59,9 @@ export default function CityMap({
   excludedUsStates: string[];
   closestGuess: City | null;
   useClosestGuess: boolean;
+  loadingState: boolean;
 }) {
-  const { data: cities = [], isLoading } = useQuery<City[]>({
+  const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all`);
@@ -69,7 +71,7 @@ export default function CityMap({
     refetchOnWindowFocus: false,
   });
 
-  const { data: countriesData = [] } = useQuery<Country[]>({
+  const { data: countriesData = [], isLoading: countriesLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
@@ -138,7 +140,7 @@ export default function CityMap({
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
-      <ClusterLayer cities={visibleCities} />
+      {loadingState == false && <ClusterLayer cities={visibleCities} />}
       <CircleLayer circles={circles} />
       {equatorialLine && (
         <Polyline
@@ -150,7 +152,7 @@ export default function CityMap({
         />
       )}
       <MapController centerOn={null} />
-      {isLoading && <div className="absolute bottom-4 left-4 bg-background text-foreground px-3 py-1 rounded z-999">Loading cities...</div>}
+      {(citiesLoading || countriesLoading || loadingState) && <div className="absolute bottom-4 left-4 bg-background text-foreground px-3 py-1 rounded z-999">Loading cities...</div>}
     </MapContainer>
   );
 }

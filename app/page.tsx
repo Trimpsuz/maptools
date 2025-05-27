@@ -5,13 +5,18 @@ import { AddCityCircleEvent, CircleConfig, City, ClosestGuessEvent, Country } fr
 import { useQuery } from '@tanstack/react-query';
 import { Menu } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 const CityMap = dynamic(() => import('@/components/CityMap'), {
   ssr: false,
 });
 
 export default function HomePage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const [minPopulation, setMinPopulation] = useState(5000);
   const [country, setCountry] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,6 +30,8 @@ export default function HomePage() {
   const [excludedUsStates, setExcludedUsStates] = useState<string[]>([]);
   const [closestGuess, setClosestGuess] = useState<City | null>(null);
   const [useClosestGuess, setUseClosestGuess] = useState(false);
+  const [stateId, setStateId] = useState<string | null>(null);
+  const [loadingState, setLoadingState] = useState(true);
 
   useEffect(() => {
     if (country !== 'US') setUsState(null);
@@ -35,6 +42,16 @@ export default function HomePage() {
     queryFn: async () => {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all`);
       if (!res.ok) throw new Error('Failed to fetch cities');
+      return res.json();
+    },
+    refetchOnWindowFocus: false,
+  });
+
+  const { data: countries = [], isLoading: countriesLoading } = useQuery<Country[]>({
+    queryKey: ['countries'],
+    queryFn: async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/countries`);
+      if (!res.ok) throw new Error('Failed to load countries');
       return res.json();
     },
     refetchOnWindowFocus: false,
@@ -111,6 +128,103 @@ export default function HomePage() {
     return () => document.removeEventListener('closestGuess', handler);
   }, []);
 
+  useEffect(() => {
+    const stateId = searchParams.get('state');
+
+    if (stateId) {
+      setLoadingState(true);
+      setStateId(stateId);
+    } else {
+      setLoadingState(false);
+      setStateId(null);
+    }
+  }, [searchParams, setLoadingState, setStateId]);
+
+  useEffect(() => {
+    if (stateId && stateId.trim() != '' && !citiesLoading && !countriesLoading && cities && countries && loadingState) {
+      if (stateId.trim() === '') {
+        toast.error('Invalid state ID in URL.');
+        return;
+      }
+
+      const fetchState = async () => {
+        try {
+          const response = await fetch(`/api/load/${stateId}`, {
+            method: 'GET',
+          });
+
+          if (response.status !== 200) {
+            const errorData = await response.json();
+            return toast.error(errorData.error);
+          }
+
+          const state = await response.json();
+
+          if (state.country != null) setCountry(state.country);
+          if (state.incorrectGuesses.countries.length !== 0)
+            setExcludedCountries(state.incorrectGuesses.countries.map((code: string) => countries.find((c) => c.code === code)).filter(Boolean) as Country[]);
+          if (state.incorrectGuesses.usStates.length !== 0) setExcludedUsStates(state.incorrectGuesses.usStates);
+          if (state.hemisphere != null) setHemisphere(state.hemisphere);
+          if (state.continent != null) setContinent(state.continent);
+          if (state.usState != null) setUsState(state.usState);
+
+          if (state.closestGuess != null) {
+            const closestGuess = cities.find((c) => c.id === state.closestGuess);
+            if (closestGuess) setClosestGuess(closestGuess);
+          }
+
+          const handleCities = (ids: string[], redRadius: number | null, greenRadius: number) => {
+            for (const id of ids) {
+              const city = cities.find((c) => c.id === id);
+              if (!city) {
+                toast.error(`City ${id} not found`);
+                continue;
+              }
+              handleAddCircle({ city, redRadius, greenRadius });
+            }
+          };
+
+          handleCities(state.incorrectGuesses.incorrect, 100, 0);
+          handleCities(state.incorrectGuesses['100km'], 50, 100);
+          handleCities(state.incorrectGuesses['50km'], 20, 50);
+          handleCities(state.incorrectGuesses['20km'], 10, 20);
+          handleCities(state.incorrectGuesses['10km'], 5, 10);
+          handleCities(state.incorrectGuesses['5km'], null, 5);
+        } catch (error) {
+          toast.error('An error occurred while loading state.');
+          console.error(error);
+        }
+      };
+
+      fetchState();
+
+      const newParams = new URLSearchParams(searchParams.toString());
+      newParams.delete('state');
+
+      router.replace(`?${newParams.toString()}`, { scroll: false });
+
+      setLoadingState(false);
+    }
+  }, [
+    stateId,
+    citiesLoading,
+    countriesLoading,
+    cities,
+    countries,
+    handleAddCircle,
+    searchParams,
+    router,
+    setCountry,
+    setExcludedCountries,
+    setExcludedUsStates,
+    setHemisphere,
+    setContinent,
+    setUsState,
+    setClosestGuess,
+    loadingState,
+    setLoadingState,
+  ]);
+
   return (
     <div className="flex h-screen">
       <div className="flex-1 relative">
@@ -137,6 +251,7 @@ export default function HomePage() {
           excludedUsStates={excludedUsStates}
           closestGuess={closestGuess}
           useClosestGuess={useClosestGuess}
+          loadingState={loadingState}
         />
       </div>
 

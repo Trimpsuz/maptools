@@ -5,6 +5,7 @@ import QueryProvider from '@/components/QueryProvider';
 import { ThemeProvider } from 'next-themes';
 import { Toaster } from '@/components/ui/sonner';
 import { Analytics } from '@vercel/analytics/next';
+import { Suspense } from 'react';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,7 +31,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <Suspense>{children}</Suspense>
+          </QueryProvider>
           <Toaster />
           <Analytics />
         </ThemeProvider>
