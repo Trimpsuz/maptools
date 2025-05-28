@@ -32,6 +32,7 @@ export default function HomePage() {
   const [useClosestGuess, setUseClosestGuess] = useState(false);
   const [stateId, setStateId] = useState<string | null>(null);
   const [loadingState, setLoadingState] = useState(true);
+  const [distanceBrackets, setDistanceBrackets] = useState([100, 50, 20, 10, 5]);
 
   useEffect(() => {
     if (country !== 'US') setUsState(null);
@@ -161,35 +162,60 @@ export default function HomePage() {
           const state = await response.json();
 
           if (state.country != null) setCountry(state.country);
-          if (state.incorrectGuesses.countries.length !== 0)
-            setExcludedCountries(state.incorrectGuesses.countries.map((code: string) => countries.find((c) => c.code === code)).filter(Boolean) as Country[]);
-          if (state.incorrectGuesses.usStates.length !== 0) setExcludedUsStates(state.incorrectGuesses.usStates);
+          if (state.incorrectGuesses.countries.length != 0) setExcludedCountries(state.incorrectGuesses.countries.map((code: string) => countries.find((c) => c.code == code) as Country));
+          if (state.incorrectGuesses.usStates.length != 0) setExcludedUsStates(state.incorrectGuesses.usStates);
           if (state.hemisphere != null) setHemisphere(state.hemisphere);
           if (state.continent != null) setContinent(state.continent);
           if (state.usState != null) setUsState(state.usState);
-
           if (state.closestGuess != null) {
-            const closestGuess = cities.find((c) => c.id === state.closestGuess);
+            const closestGuess = cities.find((c) => c.id == state.closestGuess);
             if (closestGuess) setClosestGuess(closestGuess);
           }
 
-          const handleCities = (ids: string[], redRadius: number | null, greenRadius: number) => {
-            for (const id of ids) {
-              const city = cities.find((c) => c.id === id);
+          const distanceBrackets = state.distanceBrackets.sort((a: number, b: number) => b - a);
+          setDistanceBrackets(distanceBrackets);
+          const checkedCities = new Set<string>();
+
+          for (const bracket of distanceBrackets) {
+            if (!Object.keys(state.incorrectGuesses.distance).includes(String(bracket)) || state.incorrectGuesses.distance[String(bracket)].length == 0) continue;
+            for (const id of state.incorrectGuesses.distance[String(bracket)]) {
+              if (checkedCities.has(id)) continue;
+
+              const city = cities.find((c) => c.id == id);
+
               if (!city) {
                 toast.error(`City ${id} not found`);
                 continue;
               }
-              handleAddCircle({ city, redRadius, greenRadius });
-            }
-          };
 
-          handleCities(state.incorrectGuesses.incorrect, 100, 0);
-          handleCities(state.incorrectGuesses['100km'], 50, 100);
-          handleCities(state.incorrectGuesses['50km'], 20, 50);
-          handleCities(state.incorrectGuesses['20km'], 10, 20);
-          handleCities(state.incorrectGuesses['10km'], 5, 10);
-          handleCities(state.incorrectGuesses['5km'], null, 5);
+              handleAddCircle({
+                city,
+                greenRadius: bracket,
+                redRadius: isNaN(distanceBrackets[distanceBrackets.indexOf(bracket) + 1]) ? null : distanceBrackets[distanceBrackets.indexOf(bracket) + 1],
+              });
+
+              checkedCities.add(id);
+            }
+          }
+
+          for (const id of state.incorrectGuesses.incorrect) {
+            if (checkedCities.has(id)) continue;
+
+            const city = cities.find((c) => c.id == id);
+
+            if (!city) {
+              toast.error(`City ${id} not found`);
+              continue;
+            }
+
+            handleAddCircle({
+              city,
+              greenRadius: 0,
+              redRadius: distanceBrackets[0],
+            });
+
+            checkedCities.add(id);
+          }
         } catch (error) {
           toast.error('An error occurred while loading state.');
           console.error(error);
@@ -223,6 +249,7 @@ export default function HomePage() {
     setClosestGuess,
     loadingState,
     setLoadingState,
+    setDistanceBrackets,
   ]);
 
   return (
@@ -281,6 +308,8 @@ export default function HomePage() {
         setClosestGuess={setClosestGuess}
         useClosestGuess={useClosestGuess}
         setUseClosestGuess={setUseClosestGuess}
+        distanceBrackets={distanceBrackets}
+        setDistanceBrackets={setDistanceBrackets}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}

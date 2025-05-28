@@ -44,6 +44,8 @@ export default function Sidebar({
   setUseClosestGuess,
   excludedUsStates,
   setExcludedUsStates,
+  distanceBrackets,
+  setDistanceBrackets,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -70,6 +72,8 @@ export default function Sidebar({
   setUseClosestGuess: (useClosestGuess: boolean) => void;
   excludedUsStates: string[];
   setExcludedUsStates: (excludedUsStates: string[]) => void;
+  distanceBrackets: number[];
+  setDistanceBrackets: (distanceBrackets: number[]) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -87,6 +91,7 @@ export default function Sidebar({
     setUsState(null);
     setExcludedUsStates([]);
     setClosestGuess(null);
+    setDistanceBrackets([100, 50, 20, 10, 5]);
   };
 
   return (
@@ -121,6 +126,8 @@ export default function Sidebar({
           setUsState={setUsState}
           setExcludedUsStates={setExcludedUsStates}
           onAddCircle={handleAddCircle}
+          distanceBrackets={distanceBrackets}
+          setDistanceBrackets={setDistanceBrackets}
         />
 
         <Button className="cursor-pointer" variant="destructive" onClick={() => clearAll()}>

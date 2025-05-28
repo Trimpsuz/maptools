@@ -26,6 +26,8 @@ export default function LoadSave({
   setClosestGuess,
   setExcludedUsStates,
   onAddCircle,
+  distanceBrackets,
+  setDistanceBrackets,
 }: {
   minPopulation: number;
   country: string | null;
@@ -44,6 +46,8 @@ export default function LoadSave({
   excludedUsStates: string[];
   setExcludedUsStates: (excludedUsStates: string[]) => void;
   onAddCircle: (config: CircleConfig) => void;
+  distanceBrackets: number[];
+  setDistanceBrackets: (distanceBrackets: number[]) => void;
 }) {
   const { data: countries = [], isLoading: countriesLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
@@ -102,15 +106,19 @@ export default function LoadSave({
     const incorrectGuesses = {
       countries: excludedCountries.map((c) => c.code),
       usStates: excludedUsStates,
-      incorrect: circles.filter((c) => c.redRadius == 100).map((c) => c.city.id),
-      '100km': circles.filter((c) => c.redRadius == 50).map((c) => c.city.id),
-      '50km': circles.filter((c) => c.redRadius == 20).map((c) => c.city.id),
-      '20km': circles.filter((c) => c.redRadius == 10).map((c) => c.city.id),
-      '10km': circles.filter((c) => c.redRadius == 5).map((c) => c.city.id),
-      '5km': circles.filter((c) => c.redRadius == null).map((c) => c.city.id),
+      incorrect: circles.filter((c) => c.greenRadius == 0).map((c) => c.city.id),
+      distance: {} as Record<string, string[]>,
     };
 
+    for (const circle of circles) {
+      if (circle.greenRadius > 0) {
+        if (!incorrectGuesses.distance[circle.greenRadius.toString()]) incorrectGuesses.distance[circle.greenRadius.toString()] = [];
+        incorrectGuesses.distance[circle.greenRadius.toString()].push(circle.city.id);
+      }
+    }
+
     const state = {
+      distanceBrackets,
       country,
       incorrectGuesses,
       hemisphere,
@@ -171,58 +179,49 @@ export default function LoadSave({
       if (closestGuess) setClosestGuess(closestGuess);
     }
 
+    const distanceBrackets = state.distanceBrackets.sort((a: number, b: number) => b - a);
+    setDistanceBrackets(distanceBrackets);
+    const checkedCities = new Set<string>();
+
+    for (const bracket of distanceBrackets) {
+      if (!Object.keys(state.incorrectGuesses.distance).includes(String(bracket)) || state.incorrectGuesses.distance[String(bracket)].length == 0) continue;
+      for (const id of state.incorrectGuesses.distance[String(bracket)]) {
+        if (checkedCities.has(id)) continue;
+
+        const city = cities.find((c) => c.id == id);
+
+        if (!city) {
+          toast.error(`City ${id} not found`);
+          continue;
+        }
+
+        onAddCircle({
+          city,
+          greenRadius: bracket,
+          redRadius: isNaN(distanceBrackets[distanceBrackets.indexOf(bracket) + 1]) ? null : distanceBrackets[distanceBrackets.indexOf(bracket) + 1],
+        });
+
+        checkedCities.add(id);
+      }
+    }
+
     for (const id of state.incorrectGuesses.incorrect) {
-      const city = cities.find((c) => c.id == id);
-      if (!city) {
-        toast.error(`City ${id} not found`);
-        continue;
-      }
-      onAddCircle({ city, redRadius: 100, greenRadius: 0 });
-    }
+      if (checkedCities.has(id)) continue;
 
-    for (const id of state.incorrectGuesses['100km']) {
       const city = cities.find((c) => c.id == id);
-      if (!city) {
-        toast.error(`City ${id} not found`);
-        continue;
-      }
-      onAddCircle({ city, redRadius: 50, greenRadius: 100 });
-    }
 
-    for (const id of state.incorrectGuesses['50km']) {
-      const city = cities.find((c) => c.id == id);
       if (!city) {
         toast.error(`City ${id} not found`);
         continue;
       }
-      onAddCircle({ city, redRadius: 20, greenRadius: 50 });
-    }
 
-    for (const id of state.incorrectGuesses['20km']) {
-      const city = cities.find((c) => c.id == id);
-      if (!city) {
-        toast.error(`City ${id} not found`);
-        continue;
-      }
-      onAddCircle({ city, redRadius: 10, greenRadius: 20 });
-    }
+      onAddCircle({
+        city,
+        greenRadius: 0,
+        redRadius: distanceBrackets[0],
+      });
 
-    for (const id of state.incorrectGuesses['10km']) {
-      const city = cities.find((c) => c.id == id);
-      if (!city) {
-        toast.error(`City ${id} not found`);
-        continue;
-      }
-      onAddCircle({ city, redRadius: 5, greenRadius: 10 });
-    }
-
-    for (const id of state.incorrectGuesses['5km']) {
-      const city = cities.find((c) => c.id == id);
-      if (!city) {
-        toast.error(`City ${id} not found`);
-        continue;
-      }
-      onAddCircle({ city, redRadius: null, greenRadius: 5 });
+      checkedCities.add(id);
     }
 
     setLoadingLoad(false);
@@ -239,7 +238,7 @@ export default function LoadSave({
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Load or Save State</DialogTitle>
+          <DialogTitle>Load or save state</DialogTitle>
           <DialogDescription>Save the current state to a key so you can load it later or load from an existing key</DialogDescription>
         </DialogHeader>
         <div className="flex gap-2">
