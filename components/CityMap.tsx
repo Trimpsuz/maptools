@@ -101,6 +101,8 @@ export default function CityMap({
 
       if (excludedCountries.some((country) => country.code === city.countryCode)) return false;
 
+      if (city.name.toLowerCase().includes('estate')) return false;
+
       if (circles.length === 0) return true;
 
       if (usedCityIds.has(city.id)) return false;
