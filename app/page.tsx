@@ -41,7 +41,7 @@ export default function HomePage() {
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
     queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all`);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
       if (!res.ok) throw new Error('Failed to fetch cities');
       return res.json();
     },

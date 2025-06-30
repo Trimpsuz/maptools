@@ -28,7 +28,7 @@ function createMarker(city: City, countries: Country[]) {
                     onclick="
                       const button = this;
                       const copyIcon = button.innerHTML;
-                      navigator.clipboard.writeText('${names[0].replaceAll("'", "\\'")}').then(() => {
+                      navigator.clipboard.writeText('${escape(names[0])}').then(() => {
                         button.innerHTML = atob('${btoa(checkIcon)}');
                         button.classList.add('text-green-500');
                         button.classList.remove('cursor-pointer');
@@ -60,7 +60,7 @@ function createMarker(city: City, countries: Country[]) {
                       onclick="
                         const button = this;
                         const copyIcon = button.innerHTML;
-                        navigator.clipboard.writeText('${country.replaceAll("'", "\\'")}').then(() => {
+                        navigator.clipboard.writeText('${escape(country)}').then(() => {
                           button.innerHTML = atob('${btoa(checkIcon)}');
                           button.classList.add('text-green-500');
                           button.classList.remove('cursor-pointer');
@@ -92,7 +92,7 @@ function createMarker(city: City, countries: Country[]) {
                       onclick="
                         const button = this;
                         const copyIcon = button.innerHTML;
-                        navigator.clipboard.writeText('${city.admin1Name?.replaceAll("'", "\\'")}').then(() => {
+                        navigator.clipboard.writeText('${escape(String(city.admin1Name))}').then(() => {
                           button.innerHTML = atob('${btoa(checkIcon)}');
                           button.classList.add('text-green-500');
                           button.classList.remove('cursor-pointer');
@@ -124,7 +124,7 @@ function createMarker(city: City, countries: Country[]) {
                       onclick="
                         const button = this;
                         const copyIcon = button.innerHTML;
-                        navigator.clipboard.writeText('${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")}').then(() => {
+                        navigator.clipboard.writeText('${escape(city.alternateNames.split(';')[0].split(',')[0])}').then(() => {
                           button.innerHTML = atob('${btoa(checkIcon)}');
                           button.classList.add('text-green-500');
                           button.classList.remove('cursor-pointer');
@@ -202,13 +202,13 @@ function createMarker(city: City, countries: Country[]) {
                           const button = this;
                           const copyIcon = button.innerHTML;
                           navigator.clipboard.writeText(
-                          '${
+                          '${escape(
                             city.admin2Required && city.alternateNames !== ''
                               ? `/guess city:${city.alternateNames.split(';')[0].split(',')[0].replaceAll("'", "\\'")} country:${city.countryCode} ${
                                   city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''
                                 }`
                               : `/guess city:${names[0].replaceAll("'", "\\'")} country:${city.countryCode} ${city.admin1Name ? `region:${city.admin1Name?.replaceAll("'", "\\'")}` : ''}`
-                          }'
+                          )}'
                           ).then(() => {
                             button.innerHTML = atob('${btoa(checkIcon)}');
                             button.classList.add('text-green-500');
