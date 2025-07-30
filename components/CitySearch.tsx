@@ -110,14 +110,17 @@ export default function CitySearch({
         </div>
       </div>
 
-      <div className={`grid ${useClosestGuess ? 'grid-cols-7' : 'grid-cols-6'} gap-1`}>
+      <div className={`grid ${useClosestGuess ? 'grid-cols-8' : 'grid-cols-7'} gap-1`}>
         {useClosestGuess && (
           <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleClosestGuess()}>
             ⬇️
           </Button>
         )}
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(100, 0)}>
+        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(250, 0)}>
           ❌
+        </Button>
+        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(100, 250)}>
+          ⭕
         </Button>
         <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(50, 100)}>
           🤏

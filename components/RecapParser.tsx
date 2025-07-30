@@ -116,6 +116,20 @@ export default function RecapParser({
 
         if (typeof city === 'string') toast.error(`Error in recap on line ${index + 1}`, { description: city });
         else setClosestGuess(city);
+      } else if (line.toLowerCase().includes('answer is under 250km away from ')) {
+        // Within 250km (⭕) line
+
+        const city = findCity(line.toLowerCase().split('answer is under 250km away from')[1].trim(), countries, cities);
+
+        if (typeof city === 'string') toast.error(`Error in recap on line ${index + 1}`, { description: city });
+        else {
+          onAddCircle({
+            city,
+            redRadius: 100,
+            greenRadius: 250,
+          });
+          checkedCities.add(city);
+        }
       } else if (line.toLowerCase().includes('answer is under 100km away from ')) {
         // Within 100km (🤏) line
 
@@ -183,7 +197,7 @@ export default function RecapParser({
           checkedCities.add(city);
         }
       } else if (line.toLowerCase().includes('answer is not ')) {
-        // Not within 100km (❌) line
+        // Not within 250km (❌) line
         if (!country) {
           toast.error(`Error in recap on line ${index + 1}`, { description: 'Cannot recap individual cities without a country' });
           continue;
@@ -196,7 +210,7 @@ export default function RecapParser({
           if (checkedCities.has(city)) continue; // This is required because even if a city is within <=100km it still has the "answer is not" line
           onAddCircle({
             city,
-            redRadius: 100,
+            redRadius: 250,
             greenRadius: 0,
           });
         }

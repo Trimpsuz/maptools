@@ -11,7 +11,8 @@ export default function ExcludedCountriesList({ circles, setCircles }: { circles
   const [isOpen, setIsOpen] = useState(false);
 
   const radiusEmojis = new Map([
-    [100, '❌'],
+    [250, '❌'],
+    [100, '⭕'],
     [50, '🤏'],
     [20, '🤞'],
     [10, '💥'],

@@ -32,7 +32,7 @@ export default function HomePage() {
   const [useClosestGuess, setUseClosestGuess] = useState(false);
   const [stateId, setStateId] = useState<string | null>(null);
   const [loadingState, setLoadingState] = useState(true);
-  const [distanceBrackets, setDistanceBrackets] = useState([100, 50, 20, 10, 5]);
+  const [distanceBrackets, setDistanceBrackets] = useState([250, 100, 50, 20, 10, 5]);
 
   useEffect(() => {
     if (country !== 'US') setUsState(null);
