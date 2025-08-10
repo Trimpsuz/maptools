@@ -46,6 +46,7 @@ export default function CityMap({
   closestGuess,
   useClosestGuess,
   loadingState,
+  distanceBrackets,
 }: {
   minPopulation: number;
   countries: string;
@@ -60,6 +61,7 @@ export default function CityMap({
   closestGuess: City | null;
   useClosestGuess: boolean;
   loadingState: boolean;
+  distanceBrackets: number[];
 }) {
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
     queryKey: ['cities', minPopulation],
@@ -142,7 +144,7 @@ export default function CityMap({
   return (
     <MapContainer center={[35.6895, 139.6917]} zoom={5} style={{ height: '100%', width: '100%', zIndex: 0 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' />
-      {loadingState == false && <ClusterLayer cities={visibleCities} />}
+      {loadingState == false && <ClusterLayer cities={visibleCities} distanceBrackets={distanceBrackets} useClosestGuess={useClosestGuess} />}
       <CircleLayer circles={circles} />
       {equatorialLine && (
         <Polyline

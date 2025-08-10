@@ -22,6 +22,7 @@ export default function RecapParser({
   excludedUsStates,
   setExcludedUsStates,
   setClosestGuess,
+  distanceBrackets,
 }: {
   minPopulation: number;
   excludedCountries: Country[];
@@ -34,6 +35,7 @@ export default function RecapParser({
   excludedUsStates: string[];
   setExcludedUsStates: (excludedUsStates: string[]) => void;
   setClosestGuess: (closestGuess: City | null) => void;
+  distanceBrackets: number[];
 }) {
   const [recap, setRecap] = useState('');
 
@@ -210,7 +212,7 @@ export default function RecapParser({
           if (checkedCities.has(city)) continue; // This is required because even if a city is within <=100km it still has the "answer is not" line
           onAddCircle({
             city,
-            redRadius: 250,
+            redRadius: distanceBrackets.sort((a, b) => b - a)[0],
             greenRadius: 0,
           });
         }

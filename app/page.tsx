@@ -69,17 +69,20 @@ export default function HomePage() {
     const savedShowPossibleCitiesOnly = localStorage.getItem('showPossibleCitiesOnly');
     const savedEquatorialLine = localStorage.getItem('equatorialLine');
     const savedUseClosestGuess = localStorage.getItem('useClosestGuess');
+    const savedDistanceBrackets = localStorage.getItem('distanceBrackets');
 
     if (savedShowPossibleCitiesOnly) setShowPossibleCitiesOnly(JSON.parse(savedShowPossibleCitiesOnly));
     if (savedEquatorialLine) setEquatorialLine(JSON.parse(savedEquatorialLine));
     if (savedUseClosestGuess) setUseClosestGuess(JSON.parse(savedUseClosestGuess));
+    if (savedDistanceBrackets) setDistanceBrackets(JSON.parse(savedDistanceBrackets));
   }, []);
 
   useEffect(() => {
     localStorage.setItem('showPossibleCitiesOnly', JSON.stringify(showPossibleCitiesOnly));
     localStorage.setItem('equatorialLine', JSON.stringify(equatorialLine));
     localStorage.setItem('useClosestGuess', JSON.stringify(useClosestGuess));
-  }, [showPossibleCitiesOnly, equatorialLine, useClosestGuess]);
+    localStorage.setItem('distanceBrackets', JSON.stringify(distanceBrackets));
+  }, [showPossibleCitiesOnly, equatorialLine, useClosestGuess, distanceBrackets]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
@@ -279,6 +282,7 @@ export default function HomePage() {
           closestGuess={closestGuess}
           useClosestGuess={useClosestGuess}
           loadingState={loadingState}
+          distanceBrackets={distanceBrackets}
         />
       </div>
 

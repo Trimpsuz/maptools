@@ -91,7 +91,6 @@ export default function Sidebar({
     setUsState(null);
     setExcludedUsStates([]);
     setClosestGuess(null);
-    setDistanceBrackets([100, 50, 20, 10, 5]);
   };
 
   return (
@@ -190,6 +189,8 @@ export default function Sidebar({
           setUsState={setUsState}
           excludedUsStates={excludedUsStates}
           setExcludedUsStates={setExcludedUsStates}
+          distanceBrackets={distanceBrackets}
+          setDistanceBrackets={setDistanceBrackets}
         />
 
         <div className="flex items-center space-x-2">
@@ -211,13 +212,14 @@ export default function Sidebar({
           excludedUsStates={excludedUsStates}
           setExcludedUsStates={setExcludedUsStates}
           setClosestGuess={setClosestGuess}
+          distanceBrackets={distanceBrackets}
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />
 
         {country === 'US' && <ExcludedUsStatesList excludedUsStates={excludedUsStates} setExcludedUsStates={setExcludedUsStates} />}
 
-        <CirclesList circles={circles} setCircles={setCircles} />
+        <CirclesList circles={circles} setCircles={setCircles} distanceBrackets={distanceBrackets} />
 
         <div className="mt-auto self-end flex flex-row gap-2 pt-4">
           <Link className={buttonVariants({ variant: 'outline' })} href="https://github.com/trimpsuz/maptools" target="_blank">

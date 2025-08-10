@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import type { CircleConfig, City, Country } from '@/types';
 import { findCity } from '@/lib/utils';
 import { toast } from 'sonner';
+import MarkerSelect from './MarkerSelect';
 
 export default function CitySearch({
   onAddCircle,
@@ -23,6 +24,8 @@ export default function CitySearch({
   setUsState,
   excludedUsStates,
   setExcludedUsStates,
+  distanceBrackets,
+  setDistanceBrackets,
 }: {
   onAddCircle: (config: CircleConfig) => void;
   minPopulation: number;
@@ -37,6 +40,8 @@ export default function CitySearch({
   setUsState: (usState: string | null) => void;
   excludedUsStates: string[];
   setExcludedUsStates: (excludedUsStates: string[]) => void;
+  distanceBrackets: number[];
+  setDistanceBrackets: (distanceBrackets: number[]) => void;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
@@ -110,33 +115,45 @@ export default function CitySearch({
         </div>
       </div>
 
-      <div className={`grid ${useClosestGuess ? 'grid-cols-8' : 'grid-cols-7'} gap-1`}>
+      <div className={`grid ${useClosestGuess ? `grid-cols-${distanceBrackets.length + 2}` : `grid-cols-${distanceBrackets.length + 1}`} gap-1`}>
         {useClosestGuess && (
           <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleClosestGuess()}>
             ⬇️
           </Button>
         )}
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(250, 0)}>
+        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(distanceBrackets.sort((a, b) => b - a)[0], 0)}>
           ❌
         </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(100, 250)}>
-          ⭕
-        </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(50, 100)}>
-          🤏
-        </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(20, 50)}>
-          🤞
-        </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(10, 20)}>
-          💥
-        </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(5, 10)}>
-          🔍
-        </Button>
-        <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(null, 5)}>
-          📍
-        </Button>
+        {distanceBrackets.includes(250) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(100, 250)}>
+            ⭕
+          </Button>
+        )}
+        {distanceBrackets.includes(100) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(50, 100)}>
+            🤏
+          </Button>
+        )}
+        {distanceBrackets.includes(50) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(20, 50)}>
+            🤞
+          </Button>
+        )}
+        {distanceBrackets.includes(20) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(10, 20)}>
+            💥
+          </Button>
+        )}
+        {distanceBrackets.includes(10) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(5, 10)}>
+            🔍
+          </Button>
+        )}
+        {distanceBrackets.includes(5) && (
+          <Button disabled={citiesLoading || countriesLoading} className="cursor-pointer" variant="outline" size="sm" onClick={() => handleCircleButton(null, 5)}>
+            📍
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-2">
@@ -206,6 +223,8 @@ export default function CitySearch({
           </Button>
         </div>
       )}
+
+      <MarkerSelect distanceBrackets={distanceBrackets} setDistanceBrackets={setDistanceBrackets} />
 
       {useClosestGuess && (
         <div className="flex flex-col">

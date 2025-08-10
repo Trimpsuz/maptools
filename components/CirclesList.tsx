@@ -3,22 +3,46 @@ import { CircleConfig } from '@/types';
 import { Collapsible } from '@/components/ui/collapsible';
 import { CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CollapsibleContent } from '@/components/ui/collapsible';
-import { SetStateAction, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { ChevronDown, SquareSquare, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export default function ExcludedCountriesList({ circles, setCircles }: { circles: CircleConfig[]; setCircles: (circles: SetStateAction<CircleConfig[]>) => void }) {
+export default function CirclesList({ circles, setCircles, distanceBrackets }: { circles: CircleConfig[]; setCircles: (circles: SetStateAction<CircleConfig[]>) => void; distanceBrackets: number[] }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const radiusEmojis = new Map([
-    [250, '❌'],
-    [100, '⭕'],
-    [50, '🤏'],
-    [20, '🤞'],
-    [10, '💥'],
-    [5, '🔍'],
-    [null, '📍'],
-  ]);
+  const [radiusEmojis, setRadiusEmojis] = useState(
+    new Map(
+      (
+        [
+          [distanceBrackets.sort((a, b) => b - a)[0], '❌'],
+          [100, '⭕'],
+          [50, '🤏'],
+          [20, '🤞'],
+          [10, '💥'],
+          [5, '🔍'],
+          [null, '📍'],
+        ] as [number | null, string][]
+      ).filter(([key, val]) => key === null || key !== distanceBrackets.sort((a, b) => b - a)[0] || val === '❌')
+    )
+  );
+
+  useEffect(() => {
+    setRadiusEmojis(
+      new Map(
+        (
+          [
+            [distanceBrackets.sort((a, b) => b - a)[0], '❌'],
+            [100, '⭕'],
+            [50, '🤏'],
+            [20, '🤞'],
+            [10, '💥'],
+            [5, '🔍'],
+            [null, '📍'],
+          ] as [number | null, string][]
+        ).filter(([key, val]) => key === null || key !== distanceBrackets.sort((a, b) => b - a)[0] || val === '❌')
+      )
+    );
+  }, [distanceBrackets, setRadiusEmojis]);
 
   return (
     <div className="flex flex-col w-full gap-2">
