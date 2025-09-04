@@ -82,7 +82,7 @@ function createPopupHTML(city: City, countries: Country[], distanceBrackets: num
                     : ''
                 }
                 ${
-                  city.admin1Required
+                  city.admin1Required && city.admin1
                     ? `
                   <div class="flex flex-row gap-2 items-center">
                     ${alertIcon}
@@ -182,7 +182,7 @@ function createPopupHTML(city: City, countries: Country[], distanceBrackets: num
                     : ''
                 }
                 ${
-                  city.admin2Required && city.alternateNames === ''
+                  (city.admin2Required && city.alternateNames === '') || (city.admin1Required && !city.admin1)
                     ? `
                   <div class="flex flex-row gap-2 items-center">
                     ${alertIcon}
