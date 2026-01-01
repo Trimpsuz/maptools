@@ -2,6 +2,7 @@ import { City, Country } from '@/types';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import anyAscii from 'any-ascii';
+import { openDB } from 'idb';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -91,4 +92,34 @@ export const findCity = (query: string, countries: Country[], cities: City[]) =>
   }
 
   return filteredCities.sort((a, b) => b.population - a.population)[0];
+};
+
+export const fetchCities = async (minPopulation: number, useCache: boolean) => {
+  if (useCache && minPopulation === 5000) {
+    const cacheKey = 'cities';
+
+    const db = await openDB('cities-cache', 1, {
+      upgrade(db) {
+        db.createObjectStore('data');
+      },
+    });
+
+    const { hash } = await (await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities/hash`)).json();
+
+    const cached = await db.get('data', cacheKey);
+
+    if (cached && cached.hash === hash) return cached.data;
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
+    if (!res.ok) throw new Error('Failed to fetch cities');
+    const data = await res.json();
+
+    await db.put('data', { hash, data }, cacheKey);
+
+    return data;
+  }
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
+  if (!res.ok) throw new Error('Failed to fetch cities');
+  return res.json();
 };

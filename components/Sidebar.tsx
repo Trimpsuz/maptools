@@ -17,6 +17,7 @@ import Link from 'next/link';
 import UsStateSelect from './UsStateSelect';
 import ExcludedUsStatesList from './ExcludedUsStatesList';
 import LoadSave from './LoadSave';
+import Settings from './Settings';
 
 export default function Sidebar({
   sidebarOpen,
@@ -46,6 +47,8 @@ export default function Sidebar({
   setExcludedUsStates,
   distanceBrackets,
   setDistanceBrackets,
+  useCache,
+  setUseCache,
 }: {
   sidebarOpen: boolean;
   minPopulation: number;
@@ -74,6 +77,8 @@ export default function Sidebar({
   setExcludedUsStates: (excludedUsStates: string[]) => void;
   distanceBrackets: number[];
   setDistanceBrackets: (distanceBrackets: number[]) => void;
+  useCache: boolean;
+  setUseCache: (useCache: boolean) => void;
 }) {
   const handleAddCircle = (circleConfig: CircleConfig) => {
     setCircles((prevCircles) => {
@@ -127,6 +132,7 @@ export default function Sidebar({
           onAddCircle={handleAddCircle}
           distanceBrackets={distanceBrackets}
           setDistanceBrackets={setDistanceBrackets}
+          useCache={useCache}
         />
 
         <Button className="cursor-pointer" variant="destructive" onClick={() => clearAll()}>
@@ -191,6 +197,7 @@ export default function Sidebar({
           setExcludedUsStates={setExcludedUsStates}
           distanceBrackets={distanceBrackets}
           setDistanceBrackets={setDistanceBrackets}
+          useCache={useCache}
         />
 
         <div className="flex items-center space-x-2">
@@ -213,6 +220,7 @@ export default function Sidebar({
           setExcludedUsStates={setExcludedUsStates}
           setClosestGuess={setClosestGuess}
           distanceBrackets={distanceBrackets}
+          useCache={useCache}
         />
 
         <ExcludedCountriesList excludedCountries={excludedCountries} setExcludedCountries={setExcludedCountries} />
@@ -222,6 +230,7 @@ export default function Sidebar({
         <CirclesList circles={circles} setCircles={setCircles} distanceBrackets={distanceBrackets} />
 
         <div className="mt-auto self-end flex flex-row gap-2 pt-4">
+          <Settings useCache={useCache} setUseCache={setUseCache} />
           <Link className={buttonVariants({ variant: 'outline' })} href="https://github.com/trimpsuz/maptools" target="_blank">
             <Github />
           </Link>

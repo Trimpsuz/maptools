@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
-import { findCity } from '@/lib/utils';
+import { fetchCities, findCity } from '@/lib/utils';
 import anyAscii from 'any-ascii';
 import { Trash2 } from 'lucide-react';
 import { usStates } from '@/lib/constants';
@@ -23,6 +23,7 @@ export default function RecapParser({
   setExcludedUsStates,
   setClosestGuess,
   distanceBrackets,
+  useCache,
 }: {
   minPopulation: number;
   excludedCountries: Country[];
@@ -36,6 +37,7 @@ export default function RecapParser({
   setExcludedUsStates: (excludedUsStates: string[]) => void;
   setClosestGuess: (closestGuess: City | null) => void;
   distanceBrackets: number[];
+  useCache: boolean;
 }) {
   const [recap, setRecap] = useState('');
 
@@ -50,12 +52,8 @@ export default function RecapParser({
   });
 
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
-    queryKey: ['cities', minPopulation],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
-      if (!res.ok) throw new Error('Failed to fetch cities');
-      return res.json();
-    },
+    queryKey: ['cities', minPopulation, useCache],
+    queryFn: async () => fetchCities(minPopulation, useCache),
     refetchOnWindowFocus: false,
   });
 

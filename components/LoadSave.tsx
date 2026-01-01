@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
+import { fetchCities } from '@/lib/utils';
 
 export default function LoadSave({
   minPopulation,
@@ -28,6 +29,7 @@ export default function LoadSave({
   onAddCircle,
   distanceBrackets,
   setDistanceBrackets,
+  useCache,
 }: {
   minPopulation: number;
   country: string | null;
@@ -48,6 +50,7 @@ export default function LoadSave({
   onAddCircle: (config: CircleConfig) => void;
   distanceBrackets: number[];
   setDistanceBrackets: (distanceBrackets: number[]) => void;
+  useCache: boolean;
 }) {
   const { data: countries = [], isLoading: countriesLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
@@ -60,12 +63,8 @@ export default function LoadSave({
   });
 
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
-    queryKey: ['cities', minPopulation],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
-      if (!res.ok) throw new Error('Failed to fetch cities');
-      return res.json();
-    },
+    queryKey: ['cities', minPopulation, useCache],
+    queryFn: async () => fetchCities(minPopulation, useCache),
     refetchOnWindowFocus: false,
   });
 

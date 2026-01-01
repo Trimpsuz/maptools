@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { Switch } from '@/components/ui/switch';
 import type { CircleConfig, City, Country } from '@/types';
-import { findCity } from '@/lib/utils';
+import { fetchCities, findCity } from '@/lib/utils';
 import { toast } from 'sonner';
 import MarkerSelect from './MarkerSelect';
 
@@ -26,6 +26,7 @@ export default function CitySearch({
   setExcludedUsStates,
   distanceBrackets,
   setDistanceBrackets,
+  useCache,
 }: {
   onAddCircle: (config: CircleConfig) => void;
   minPopulation: number;
@@ -42,6 +43,7 @@ export default function CitySearch({
   setExcludedUsStates: (excludedUsStates: string[]) => void;
   distanceBrackets: number[];
   setDistanceBrackets: (distanceBrackets: number[]) => void;
+  useCache: boolean;
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [centerOnCircle, setCenterOnCircle] = useState(false);
@@ -67,12 +69,8 @@ export default function CitySearch({
   });
 
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
-    queryKey: ['cities', minPopulation],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
-      if (!res.ok) throw new Error('Failed to fetch cities');
-      return res.json();
-    },
+    queryKey: ['cities', minPopulation, useCache],
+    queryFn: async () => fetchCities(minPopulation, useCache),
     refetchOnWindowFocus: false,
   });
 

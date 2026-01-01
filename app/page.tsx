@@ -1,6 +1,7 @@
 'use client';
 
 import Sidebar from '@/components/Sidebar';
+import { fetchCities } from '@/lib/utils';
 import { AddCityCircleEvent, CircleConfig, City, ClosestGuessEvent, Country } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { Menu } from 'lucide-react';
@@ -33,18 +34,15 @@ export default function HomePage() {
   const [stateId, setStateId] = useState<string | null>(null);
   const [loadingState, setLoadingState] = useState(true);
   const [distanceBrackets, setDistanceBrackets] = useState([250, 100, 50, 20, 10, 5]);
+  const [useCache, setUseCache] = useState(true);
 
   useEffect(() => {
     if (country !== 'US') setUsState(null);
   }, [country]);
 
   const { data: cities = [], isLoading: citiesLoading } = useQuery<City[]>({
-    queryKey: ['cities', minPopulation],
-    queryFn: async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cities?minPopulation=${minPopulation}&countries=all&gtc=true`);
-      if (!res.ok) throw new Error('Failed to fetch cities');
-      return res.json();
-    },
+    queryKey: ['cities', minPopulation, useCache],
+    queryFn: async () => fetchCities(minPopulation, useCache),
     refetchOnWindowFocus: false,
   });
 
@@ -70,11 +68,13 @@ export default function HomePage() {
     const savedEquatorialLine = localStorage.getItem('equatorialLine');
     const savedUseClosestGuess = localStorage.getItem('useClosestGuess');
     const savedDistanceBrackets = localStorage.getItem('distanceBrackets');
+    const savedUseCache = localStorage.getItem('useCache');
 
     if (savedShowPossibleCitiesOnly) setShowPossibleCitiesOnly(JSON.parse(savedShowPossibleCitiesOnly));
     if (savedEquatorialLine) setEquatorialLine(JSON.parse(savedEquatorialLine));
     if (savedUseClosestGuess) setUseClosestGuess(JSON.parse(savedUseClosestGuess));
     if (savedDistanceBrackets) setDistanceBrackets(JSON.parse(savedDistanceBrackets));
+    if (savedUseCache) setUseCache(JSON.parse(savedUseCache));
   }, []);
 
   useEffect(() => {
@@ -82,7 +82,8 @@ export default function HomePage() {
     localStorage.setItem('equatorialLine', JSON.stringify(equatorialLine));
     localStorage.setItem('useClosestGuess', JSON.stringify(useClosestGuess));
     localStorage.setItem('distanceBrackets', JSON.stringify(distanceBrackets));
-  }, [showPossibleCitiesOnly, equatorialLine, useClosestGuess, distanceBrackets]);
+    localStorage.setItem('useCache', JSON.stringify(useCache));
+  }, [showPossibleCitiesOnly, equatorialLine, useClosestGuess, distanceBrackets, useCache]);
 
   useEffect(() => {
     setSidebarOpen(window.innerWidth >= 768);
@@ -283,6 +284,7 @@ export default function HomePage() {
           useClosestGuess={useClosestGuess}
           loadingState={loadingState}
           distanceBrackets={distanceBrackets}
+          useCache={useCache}
         />
       </div>
 
@@ -314,6 +316,8 @@ export default function HomePage() {
         setUseClosestGuess={setUseClosestGuess}
         distanceBrackets={distanceBrackets}
         setDistanceBrackets={setDistanceBrackets}
+        useCache={useCache}
+        setUseCache={setUseCache}
       />
 
       {sidebarOpen && <div className="fixed inset-0 z-30 md:hidden" onClick={() => setSidebarOpen(false)} />}
