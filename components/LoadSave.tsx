@@ -3,7 +3,7 @@ import { CircleCheck, Copy, Download, Link, Loader2, SaveAll, Upload } from 'luc
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { useQuery } from '@tanstack/react-query';
 import { CircleConfig, City, Country } from '@/types';
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { Input } from './ui/input';
 import { toast } from 'sonner';
 import { Switch } from '@/components/ui/switch';
@@ -30,6 +30,7 @@ export default function LoadSave({
   distanceBrackets,
   setDistanceBrackets,
   useCache,
+  setCircles,
 }: {
   minPopulation: number;
   country: string | null;
@@ -51,6 +52,7 @@ export default function LoadSave({
   distanceBrackets: number[];
   setDistanceBrackets: (distanceBrackets: number[]) => void;
   useCache: boolean;
+  setCircles: (circles: SetStateAction<CircleConfig[]>) => void;
 }) {
   const { data: countries = [], isLoading: countriesLoading } = useQuery<Country[]>({
     queryKey: ['countries'],
@@ -168,19 +170,27 @@ export default function LoadSave({
     const state = await response.json();
 
     if (state.country != null) setCountry(state.country);
+    else setCountry(null);
     if (state.incorrectGuesses.countries.length != 0) setExcludedCountries(state.incorrectGuesses.countries.map((code: string) => countries.find((c) => c.code == code) as Country));
+    else setExcludedCountries([]);
     if (state.incorrectGuesses.usStates.length != 0) setExcludedUsStates(state.incorrectGuesses.usStates);
+    else setExcludedUsStates([]);
     if (state.hemisphere != null) setHemisphere(state.hemisphere);
+    else setHemisphere('Both');
     if (state.continent != null) setContinent(state.continent);
+    else setContinent(null);
     if (state.usState != null) setUsState(state.usState);
+    else setUsState(null);
     if (state.closestGuess != null) {
       const closestGuess = cities.find((c) => c.id == state.closestGuess);
       if (closestGuess) setClosestGuess(closestGuess);
-    }
+    } else setClosestGuess(null);
 
     const distanceBrackets = state.distanceBrackets.sort((a: number, b: number) => b - a);
     setDistanceBrackets(distanceBrackets);
     const checkedCities = new Set<string>();
+
+    setCircles([]);
 
     for (const bracket of distanceBrackets) {
       if (!Object.keys(state.incorrectGuesses.distance).includes(String(bracket)) || state.incorrectGuesses.distance[String(bracket)].length == 0) continue;

@@ -133,6 +133,7 @@ export default function Sidebar({
           distanceBrackets={distanceBrackets}
           setDistanceBrackets={setDistanceBrackets}
           useCache={useCache}
+          setCircles={setCircles}
         />
 
         <Button className="cursor-pointer" variant="destructive" onClick={() => clearAll()}>
