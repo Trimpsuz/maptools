@@ -6,6 +6,7 @@
 .maplibregl-popup-tip {
   display: none !important;
 }
+
 .maplibregl-popup-content {
   background: none !important;
   box-shadow: none !important;
@@ -14,10 +15,11 @@
   margin: 0 !important;
   width: auto !important;
 }
+
 .maplibregl-popup-close-button {
   color: white !important;
   top: 5px !important;
-  right: 5px !important;
+  right: 10px !important;
 }
 
 @custom-variant dark (&:is(.dark *));
