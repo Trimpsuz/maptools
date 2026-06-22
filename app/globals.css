@@ -1,28 +1,25 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@import 'leaflet/dist/leaflet.css';
-@import 'leaflet.markercluster/dist/MarkerCluster.css';
-@import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+@import 'maplibre-gl/dist/maplibre-gl.css';
 
-.leaflet-popup-tip {
+.maplibregl-popup-tip {
   display: none !important;
 }
-.leaflet-popup-content-wrapper {
+
+.maplibregl-popup-content {
   background: none !important;
   box-shadow: none !important;
   border: none !important;
   padding: 0 !important;
-}
-.leaflet-popup-content {
   margin: 0 !important;
-  padding: 0 !important;
   width: auto !important;
 }
-.leaflet-popup-close-button {
+
+.maplibregl-popup-close-button {
   color: white !important;
   top: 5px !important;
-  right: 5px !important;
+  right: 10px !important;
 }
 
 @custom-variant dark (&:is(.dark *));
